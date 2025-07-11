@@ -1,6 +1,10 @@
-import React from "react";
+import React, { Suspense } from "react";
 import AddProductClient from "./AddProductClient";
 
 export default function Page() {
-  return <AddProductClient />;
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <AddProductClient />
+    </Suspense>
+  );
 }
