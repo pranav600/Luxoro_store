@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useEffect, useState } from "react";
 import ProductCard from "components/ProductCard";
 import Delete from "components/popups/Delete";
@@ -44,9 +45,12 @@ export default function AccessoriesPage() {
   const confirmDelete = async () => {
     if (!deleteId) return;
     try {
-      const res = await fetch(`http://localhost:8000/api/products/${deleteId}`, {
-        method: "DELETE",
-      });
+      const res = await fetch(
+        `http://localhost:8000/api/products/${deleteId}`,
+        {
+          method: "DELETE",
+        }
+      );
       if (!res.ok) throw new Error("Failed to delete product");
       setProducts((prev) => prev.filter((p) => p._id !== deleteId));
       setDeleteId(null);
@@ -60,6 +64,14 @@ export default function AccessoriesPage() {
   const handleEdit = (id: string) => {
     window.location.href = `/admin/admin_category/addproduct?page=edit&id=${id}`;
   };
+
+  const AboutSection = () => (
+    <section className="w-full py-16 px-4 text-center">
+      <h2 className="text-black text-5xl md:text-6xl font-black font-mono mb-10">
+        Accessories <span className="text-black">Section</span>
+      </h2>
+    </section>
+  );
 
   return (
     <main className="min-h-screen pt-16">
@@ -113,15 +125,5 @@ export default function AccessoriesPage() {
         onClose={() => setShowSuccess(false)}
       />
     </main>
-  );
-}
-
-export function AboutSection() {
-  return (
-    <section className="w-full py-16 px-4 text-center">
-      <h2 className=" text-black text-5xl md:text-6xl font-black font-mono mb-10">
-        Accessories <span className="text-black">Section</span>
-      </h2>
-    </section>
   );
 }
