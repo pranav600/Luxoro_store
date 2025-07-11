@@ -30,7 +30,7 @@ export default function AddProduct() {
       const fetchProduct = async () => {
         try {
           const res = await fetch(
-            `http://localhost:8000/api/products/${editId}`
+            `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/products/${editId}`
           );
           const data = await res.json();
           setForm({
@@ -39,7 +39,7 @@ export default function AddProduct() {
             oldPrice: data.oldPrice || "",
             category: data.category,
             image: null,
-            existingImage: `http://localhost:8000${data.image}`,
+            existingImage: `${process.env.NEXT_PUBLIC_API_BASE_URL}${data.image}`,
           });
         } catch (err) {
           setErrorMsg("❌ Failed to load product for editing.");
@@ -95,7 +95,7 @@ export default function AddProduct() {
       const res = await fetch(
         isEdit
           ? `http://localhost:8000/api/products/${editId}`
-          : "http://localhost:8000/api/products",
+          : `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/products`,
         {
           method: isEdit ? "PUT" : "POST",
           body: formData,

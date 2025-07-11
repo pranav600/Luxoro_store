@@ -22,8 +22,8 @@ export default function LoginForm({ isAdmin }: LoginFormProps) {
     try {
       const res = await fetch(
         isAdmin
-          ? "http://localhost:8000/api/admin/auth/login"
-          : "http://localhost:8000/api/auth/login",
+          ? `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/admin/auth/login`
+          : `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/auth/login`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

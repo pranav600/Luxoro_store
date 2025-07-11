@@ -23,7 +23,7 @@ export default function AccessoriesPage() {
       setError("");
       try {
         const res = await fetch(
-          "http://localhost:8000/api/products?category=accessories"
+          `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/products?category=accessories`
         );
         if (!res.ok) throw new Error("Failed to fetch products");
         const data = await res.json();
