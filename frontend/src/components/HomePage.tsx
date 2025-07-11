@@ -114,9 +114,13 @@ const BannerSection = ({
 
 // -------------------- About Section Component --------------------
 
-export function AboutSection() {
+type AboutSectionProps = {
+  sectionRef?: React.RefObject<HTMLDivElement | null>;
+};
+
+export function AboutSection({ sectionRef }: AboutSectionProps) {
   return (
-    <section className="w-full py-12 sm:py-30 px-4 sm:px-8 text-center bg-white">
+    <section ref={sectionRef} className="w-full py-12 sm:py-30 px-4 sm:px-8 text-center bg-white">
       <motion.p
         custom={1}
         variants={aboutVariant}
@@ -157,11 +161,11 @@ export function AboutSection() {
 // -------------------- Main Component --------------------
 
 export default function Banner() {
-  const summerRef = React.useRef<HTMLDivElement>(null);
+  const aboutRef = React.useRef<HTMLDivElement>(null);
 
   const handleSeeCollection = () => {
-    if (summerRef.current) {
-      summerRef.current.scrollIntoView({ behavior: "smooth" });
+    if (aboutRef.current) {
+      aboutRef.current.scrollIntoView({ behavior: "smooth" });
     }
   };
 
@@ -172,7 +176,7 @@ export default function Banner() {
         <video
           className="w-full h-full object-cover"
           src="/assets/advertisement.mp4"
-          poster="/assets/advertisement-poster.jpg"
+          poster="/assets/Advertisement-poster.jpg"
           autoPlay
           muted
           loop
@@ -199,7 +203,9 @@ export default function Banner() {
       </section>
 
       {/* About + Banners */}
-      <AboutSection />
+      <AboutSection 
+      sectionRef={aboutRef} 
+      />
       <BannerSection
         title="Royal Collection"
         description="Timeless elegance meets modern sophistication in the Royal Collection, crafted with luxurious fabrics and refined detail."
