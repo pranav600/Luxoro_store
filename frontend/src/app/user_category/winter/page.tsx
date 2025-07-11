@@ -37,6 +37,14 @@ export default function WinterPage() {
     fetchProducts();
   }, []);
 
+  const AboutSection = () => (
+    <section className="w-full py-16 px-4 text-center">
+      <h2 className="text-black text-5xl md:text-6xl font-black font-mono mb-10">
+        Winter <span className="text-black">Section</span>
+      </h2>
+    </section>
+  );
+
   return (
     <main className="min-h-screen pt-16">
       <div className="max-w-5xl mx-auto p-4">
@@ -48,7 +56,7 @@ export default function WinterPage() {
         ) : error ? (
           <p className="text-red-600">{error}</p>
         ) : products.length === 0 ? (
-          <p className="text-gray-400">No winter found.</p>
+          <p className="text-gray-400">No winter products found.</p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {products.map((product) => (
@@ -64,15 +72,5 @@ export default function WinterPage() {
         )}
       </div>
     </main>
-  );
-}
-
-export function AboutSection() {
-  return (
-    <section className="w-full py-16 px-4 text-center">
-      <h2 className=" text-black text-5xl md:text-6xl font-black font-mono mb-10">
-        Winter <span className="text-black">Section</span>
-      </h2>
-    </section>
   );
 }

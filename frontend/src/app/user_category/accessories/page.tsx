@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useEffect, useState } from "react";
 import ProductCard from "@/components/ProductCard";
 
@@ -37,6 +38,14 @@ export default function AccessoriesPage() {
     fetchProducts();
   }, []);
 
+  const AboutSection = () => (
+    <section className="w-full py-16 px-4 text-center">
+      <h2 className="text-black text-5xl md:text-6xl font-black font-mono mb-10">
+        Accessories <span className="text-black">Section</span>
+      </h2>
+    </section>
+  );
+
   return (
     <main className="min-h-screen pt-16">
       <div className="max-w-5xl mx-auto p-4">
@@ -66,14 +75,3 @@ export default function AccessoriesPage() {
     </main>
   );
 }
-
-export function AboutSection() {
-  return (
-    <section className="w-full py-16 px-4 text-center">
-      <h2 className=" text-black text-5xl md:text-6xl font-black font-mono mb-10">
-        Accessories <span className="text-black">Section</span>
-      </h2>
-    </section>
-  );
-}
-
