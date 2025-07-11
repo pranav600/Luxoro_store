@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 6, "column": 0}, "map": {"version":3,"sources":[],"names":[],"mappings":"","debugId":null}},
+    {"offset": {"line": 60, "column": 0}, "map": {"version":3,"sources":["file:///Users/prnv_3322/Desktop/React/online_store/src/app/api/products/route.ts"],"sourcesContent":["import { NextResponse } from \"next/server\";\nimport dbConnect from \"@/lib/mongodb\";\nimport Product from \"@/models/Product\";\n\nexport async function GET() {\n  await dbConnect();\n  const products = await Product.find({});\n  return NextResponse.json(products);\n}\n\nexport async function POST(req: Request) {\n  await dbConnect();\n  const data = await req.json();\n  const product = await Product.create(data);\n  return NextResponse.json(product, { status: 201 });\n}\n"],"names":[],"mappings":";;;;AAAA;;;;;;;;;;;;;;AAIO,eAAe;IACpB,MAAM;IACN,MAAM,WAAW,MAAM,QAAQ,IAAI,CAAC,CAAC;IACrC,OAAO,gIAAA,CAAA,eAAY,CAAC,IAAI,CAAC;AAC3B;AAEO,eAAe,KAAK,GAAY;IACrC,MAAM;IACN,MAAM,OAAO,MAAM,IAAI,IAAI;IAC3B,MAAM,UAAU,MAAM,QAAQ,MAAM,CAAC;IACrC,OAAO,gIAAA,CAAA,eAAY,CAAC,IAAI,CAAC,SAAS;QAAE,QAAQ;IAAI;AAClD","debugId":null}}]
+}
