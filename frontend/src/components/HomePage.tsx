@@ -176,7 +176,6 @@ export default function Banner() {
         <video
           className="w-full h-full object-cover"
           src="/assets/advertisement.mp4"
-          poster="/assets/Advertisement-poster.jpg"
           autoPlay
           muted
           loop
