@@ -8,7 +8,7 @@ interface AdminLayoutProps {
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
   return (
-    <div className="admin-container">
+    <div className="admin-container responsive-container px-2 sm:px-4 md:px-8">
       <Navbar />
       {children}
     </div>

@@ -45,8 +45,6 @@
 
 // export default ProductCard;
 
-
-
 "use client";
 
 import React from "react";

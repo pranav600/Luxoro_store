@@ -84,12 +84,10 @@ const BannerSection = ({
           {description}
         </motion.p>
         <Link href={buttonHref} passHref>
-  <button
-    className="bg-black text-white px-6 py-3 rounded-lg font-semibold text-base hover:bg-neutral-800 transition duration-300 w-fit cursor-pointer"
-  >
-    Shop Now
-  </button>
-</Link>
+          <button className="bg-black text-white px-6 py-3 rounded-lg font-semibold text-base hover:bg-neutral-800 transition duration-300 w-fit cursor-pointer">
+            Shop Now
+          </button>
+        </Link>
       </div>
 
       {/* Image */}
@@ -120,7 +118,10 @@ type AboutSectionProps = {
 
 export function AboutSection({ sectionRef }: AboutSectionProps) {
   return (
-    <section ref={sectionRef} className="w-full py-12 sm:py-30 px-4 sm:px-8 text-center bg-white">
+    <section
+      ref={sectionRef}
+      className="w-full py-12 sm:py-30 px-4 sm:px-8 text-center bg-white"
+    >
       <motion.p
         custom={1}
         variants={aboutVariant}
@@ -175,7 +176,7 @@ export default function Banner() {
       <section className="relative w-full h-[800px] overflow-hidden m-0 p-0 bg-white">
         <video
           className="w-full h-full object-cover"
-          src="/assets/advertisement.mp4"
+          src="/assets/homepage_img/advertisement.mp4"
           autoPlay
           muted
           loop
@@ -202,33 +203,31 @@ export default function Banner() {
       </section>
 
       {/* About + Banners */}
-      <AboutSection 
-      sectionRef={aboutRef} 
-      />
+      <AboutSection sectionRef={aboutRef} />
       <BannerSection
         title="Royal Collection"
         description="Timeless elegance meets modern sophistication in the Royal Collection, crafted with luxurious fabrics and refined detail."
-        image="/assets/royal.jpeg"
+        image="/assets/homepage_img/royal.jpeg"
         reverse
         buttonHref="/user_category/royal"
       />
       <BannerSection
         title="Summer Collection"
         description="Lightweight fabrics, neutral tones and breathable fits for your perfect summer look."
-        image="/assets/summer.jpeg"
+        image="/assets/homepage_img/summer.jpeg"
         buttonHref="/user_category/summer"
       />
       <BannerSection
         title="Winter Collection"
         description="Bold layers, premium textures, and warm essentials designed to elevate your winter style."
-        image="/assets/winter.jpeg"
+        image="/assets/homepage_img/winter.jpeg"
         reverse
         buttonHref="/user_category/winter"
       />
       <BannerSection
         title="Accessories"
         description="Essential accessories that elevate your style — from sleek belts to bold socks and timeless fragrances."
-        image="/assets/accessories.jpeg"
+        image="/assets/homepage_img/accessories.jpeg"
         buttonHref="/user_category/accessories"
       />
     </>
