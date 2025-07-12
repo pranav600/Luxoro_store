@@ -50,6 +50,7 @@
 "use client";
 
 import React from "react";
+import Image from "next/image"; // ✅ Import next/image
 import { motion } from "framer-motion";
 
 interface ProductCardProps {
@@ -72,11 +73,17 @@ const ProductCard: React.FC<ProductCardProps> = ({
       transition={{ duration: 0.3, ease: "easeOut" }}
       className="flex flex-col items-center w-full bg-white shadow transition-colors duration-300 p-2 sm:p-4 rounded-lg"
     >
-      <img
-        src={`http://localhost:8000${image}`}
-        alt={title}
-        className="w-full aspect-[3/4] object-contain mt-4 mb-4 sm:mt-6 sm:mb-6 rounded-lg"
-      />
+      <div className="relative w-full aspect-[3/4] mb-4 sm:mb-6 rounded-lg overflow-hidden">
+        <Image
+          src={image}
+          alt={title}
+          fill
+          sizes="(max-width: 768px) 100vw, 33vw"
+          className="object-contain"
+          priority={true}
+        />
+      </div>
+
       <div className="w-full text-center px-1 sm:px-2 pb-4 sm:pb-6">
         <div
           className="text-base sm:text-lg md:text-xl text-gray-500 font-normal mb-1 sm:mb-2 leading-tight"

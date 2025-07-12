@@ -48,13 +48,14 @@
 //   }
 // };
 
-
 import Summer from "../models/summer.js";
 import Royal from "../models/royal.js";
 import Winter from "../models/winter.js";
 import Accessories from "../models/accessories.js";
-import path from "path";
-import fs from "fs";
+import { storage } from "../cloudinaryConfig.js";
+import multer from "multer";
+
+const upload = multer({ storage });
 
 // 🔧 Get correct model based on category
 function getModelByCategory(category) {
@@ -94,10 +95,12 @@ export const createProduct = async (req, res) => {
     if (!title || !price || !category || !req.file) {
       return res.status(400).json({ error: "Missing required fields" });
     }
-    const image = `/assets/${req.file.filename}`;
+
+    const image = req.file.path; // Cloudinary URL
     const Model = getModelByCategory(category);
     const product = new Model({ title, price, oldPrice, category, image });
     await product.save();
+
     res.status(201).json({ message: "Product added!", product });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -142,11 +145,9 @@ export const updateProduct = async (req, res) => {
       return res.status(404).json({ error: "Product not found" });
     }
 
-    // delete old image if new uploaded
-    if (req.file && foundProduct.image) {
-      const imagePath = path.join("public", foundProduct.image);
-      if (fs.existsSync(imagePath)) fs.unlinkSync(imagePath);
-      foundProduct.image = `/assets/${req.file.filename}`;
+    // 🖼️ Replace image if a new one is uploaded
+    if (req.file) {
+      foundProduct.image = req.file.path; // Cloudinary URL
     }
 
     foundProduct.title = title;
@@ -170,10 +171,6 @@ export const deleteProduct = async (req, res) => {
     for (let Model of models) {
       const product = await Model.findById(id);
       if (product) {
-        if (product.image) {
-          const imagePath = path.join("public", product.image);
-          if (fs.existsSync(imagePath)) fs.unlinkSync(imagePath);
-        }
         await product.deleteOne();
         return res.json({ message: "Product deleted" });
       }

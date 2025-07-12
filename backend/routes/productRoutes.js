@@ -30,16 +30,7 @@
 
 import express from "express";
 import multer from "multer";
-
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "public/assets");
-  },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + "-" + file.originalname);
-  },
-});
-const upload = multer({ storage });
+import { storage } from "../cloudinaryConfig.js";
 
 import {
   getProducts,
@@ -51,12 +42,15 @@ import {
 
 const router = express.Router();
 
+// Use multer with Cloudinary storage
+const upload = multer({ storage });
+
 // Routes
-router.get("/", getProducts);
-router.get("/category/:category", getProducts);
-router.get("/:id", getProductById); // Get single product by ID
+router.get("/", getProducts); // /api/products
+router.get("/category/:category", getProducts); // optional if needed
+router.get("/:id", getProductById); // /api/products/:id
 router.post("/", upload.single("image"), createProduct);
 router.put("/:id", upload.single("image"), updateProduct);
-router.delete("/:id", deleteProduct); // Delete product
+router.delete("/:id", deleteProduct);
 
 export default router;
