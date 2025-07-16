@@ -105,6 +105,23 @@ const ProductCard: React.FC<ProductCardProps> = ({
             </span>
           )}
         </div>
+        <div className="flex flex-col items-center gap-3 mt-4 w-full">
+          {/* Add to Cart Button */}
+          <button
+            type="button"
+            className="w-full px-6 py-3 rounded-lg font-mono text-gray-800 border border-gray-300 bg-white shadow-sm hover:bg-gray-100 active:scale-95 transition-all duration-200"
+          >
+            Add to Cart
+          </button>
+
+          {/* Buy Now Button */}
+          <button
+            type="button"
+            className="w-full px-6 py-3 rounded-lg font-mono text-white bg-gray-800 border border-gray-800 hover:bg-black active:scale-95 transition-all duration-200 shadow-sm"
+          >
+            Buy Now
+          </button>
+        </div>
       </div>
     </motion.div>
   );

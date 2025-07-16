@@ -67,13 +67,11 @@ app.use(bodyParser.json({ limit: "10mb" }));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use("/assets", express.static(path.join(__dirname, "public/assets")));
 
-// MongoDB Connection
+// MongoDB Connection (✅ Cleaned — removed deprecated options)
 const PORT = process.env.PORT || 7000;
+
 mongoose
-  .connect(process.env.MONGO_URL, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
+  .connect(process.env.MONGO_URL)
   .then(() => console.log("✅ MongoDB connected"))
   .catch((err) => console.error("❌ MongoDB connection error", err));
 
