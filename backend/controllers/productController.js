@@ -81,7 +81,15 @@ export const getProducts = async (req, res) => {
     if (!Model) {
       return res.status(400).json({ error: "Invalid or missing category" });
     }
-    const products = await Model.find();
+    let products = await Model.find();
+    // If category is accessories, convert subCategory array to string for each product
+    if (category === "accessories") {
+      products = products.map((p) => {
+        const obj = p.toObject();
+        obj.subCategory = Array.isArray(obj.subCategory) ? obj.subCategory.join(", ") : obj.subCategory;
+        return obj;
+      });
+    }
     res.json(products);
   } catch (err) {
     res.status(500).json({ error: "Failed to fetch products" });
@@ -119,7 +127,13 @@ export const getProductById = async (req, res) => {
     const models = [Summer, Royal, Winter, Accessories];
     for (let Model of models) {
       const product = await Model.findById(id);
-      if (product) return res.json(product);
+      if (product) {
+        const obj = product.toObject();
+        if (obj.category === "accessories" && Array.isArray(obj.subCategory)) {
+          obj.subCategory = obj.subCategory.join(", ");
+        }
+        return res.json(obj);
+      }
     }
     res.status(404).json({ error: "Product not found" });
   } catch (err) {
