@@ -10,26 +10,25 @@ interface Product {
   oldPrice?: string;
   image: string;
   category?: string;
+  subCategory?: string; // Add this line for API response compatibility
 }
 
 export default function AccessoriesPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedSubCategory, setSelectedSubCategory] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<string>("");
 
-  // Available filter options
-  const filterOptions = ["perfume", "boxer", "socks", "belt"];
+  // Available filter options (should match backend)
+  const filterOptions = ["perfumes", "boxers", "socks", "belts"];
 
-  // Handle filtering (case-insensitive substring match in title or category)
-  const filteredProducts = selectedCategory
+  // Filter by subCategory (case-insensitive)
+  const filteredProducts = selectedSubCategory
     ? products.filter((p) => {
-        const keyword = selectedCategory.toLowerCase();
-        return (
-          (p.category && p.category.toLowerCase().includes(keyword)) ||
-          (p.title && p.title.toLowerCase().includes(keyword))
-        );
+        if (!p.subCategory) return false;
+        // p.subCategory is a string from the API (e.g. "perfumes, boxers")
+        return p.subCategory.toLowerCase().split(", ").includes(selectedSubCategory.toLowerCase());
       })
     : products;
 
@@ -97,8 +96,8 @@ export default function AccessoriesPage() {
                     type="radio"
                     name="category"
                     className="accent-black mr-2"
-                    checked={selectedCategory === option}
-                    onChange={() => setSelectedCategory(option)}
+                    checked={selectedSubCategory === option}
+                    onChange={() => setSelectedSubCategory(option)}
                   />
                   {option.charAt(0).toUpperCase() + option.slice(1)}
                 </label>
@@ -107,8 +106,8 @@ export default function AccessoriesPage() {
             <li>
               <button
                 className="mt-2 text-xs text-gray-500 underline font-mono cursor-pointer"
-                onClick={() => setSelectedCategory(null)}
-                disabled={!selectedCategory}
+                onClick={() => setSelectedSubCategory(null)}
+                disabled={!selectedSubCategory}
               >
                 Clear Filter
               </button>

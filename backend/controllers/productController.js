@@ -178,7 +178,12 @@ export const updateProduct = async (req, res) => {
     foundProduct.price = price;
     foundProduct.oldPrice = oldPrice;
     foundProduct.category = category;
-    foundProduct.subCategory = subCategory;
+    // Always replace the subCategory array
+    let newSubCategory = subCategory;
+    if (typeof newSubCategory === "string") {
+      newSubCategory = newSubCategory.split(",").map(s => s.trim()).filter(Boolean);
+    }
+    foundProduct.subCategory = newSubCategory;
 
     await foundProduct.save();
     res.json({ message: "Product updated", product: foundProduct });
