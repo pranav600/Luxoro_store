@@ -11,6 +11,7 @@ interface Product {
   image: string;
   category?: string;
   subCategory?: string; // Add this line for API response compatibility
+  gender?: string; // Add gender for filtering
 }
 
 export default function AccessoriesPage() {
@@ -18,19 +19,26 @@ export default function AccessoriesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [selectedSubCategory, setSelectedSubCategory] = useState<string | null>(null);
+  const [selectedGender, setSelectedGender] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<string>("");
 
   // Available filter options (should match backend)
   const filterOptions = ["perfumes", "boxers", "socks", "belts"];
+  const genderOptions = ["male", "female"];
 
-  // Filter by subCategory (case-insensitive)
-  const filteredProducts = selectedSubCategory
-    ? products.filter((p) => {
-        if (!p.subCategory) return false;
-        // p.subCategory is a string from the API (e.g. "perfumes, boxers")
-        return p.subCategory.toLowerCase().split(", ").includes(selectedSubCategory.toLowerCase());
-      })
-    : products;
+  // Filter by subCategory (case-insensitive) and gender
+  const filteredProducts = products.filter((p) => {
+    let subCatMatch = true;
+    let genderMatch = true;
+    if (selectedSubCategory) {
+      if (!p.subCategory) return false;
+      subCatMatch = p.subCategory.toLowerCase().split(", ").includes(selectedSubCategory.toLowerCase());
+    }
+    if (selectedGender) {
+      genderMatch = !!(p.gender && p.gender.toLowerCase() === selectedGender.toLowerCase());
+    }
+    return subCatMatch && genderMatch;
+  });
 
   // Handle sorting
   const sortedProducts = [...filteredProducts].sort((a, b) => {
@@ -53,9 +61,11 @@ export default function AccessoriesPage() {
       setLoading(true);
       setError("");
       try {
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/products?category=accessories`
-        );
+        let url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/products?category=accessories`;
+        if (selectedGender) {
+          url += `&gender=${selectedGender}`;
+        }
+        const res = await fetch(url);
         if (!res.ok) throw new Error("Failed to fetch products");
         const data = await res.json();
         setProducts(data || []);
@@ -67,7 +77,7 @@ export default function AccessoriesPage() {
     }
 
     fetchProducts();
-  }, []);
+  }, [selectedGender]);
 
   const AboutSection = () => (
     <section className="w-full py-16 px-4 text-center">
@@ -110,6 +120,34 @@ export default function AccessoriesPage() {
                 disabled={!selectedSubCategory}
               >
                 Clear Filter
+              </button>
+            </li>
+          </ul>
+          <h3 className="font-semibold mt-8 mb-4 text-gray-700 font-mono">
+            Gender
+          </h3>
+          <ul className="space-y-2">
+            {genderOptions.map((option) => (
+              <li key={option}>
+                <label className="flex items-center cursor-pointer text-gray-700 font-mono">
+                  <input
+                    type="radio"
+                    name="gender"
+                    className="accent-black mr-2"
+                    checked={selectedGender === option}
+                    onChange={() => setSelectedGender(option)}
+                  />
+                  {option.charAt(0).toUpperCase() + option.slice(1)}
+                </label>
+              </li>
+            ))}
+            <li>
+              <button
+                className="mt-2 text-xs text-gray-500 underline font-mono cursor-pointer"
+                onClick={() => setSelectedGender(null)}
+                disabled={!selectedGender}
+              >
+                Clear Gender
               </button>
             </li>
           </ul>

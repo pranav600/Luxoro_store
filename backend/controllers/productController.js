@@ -32,13 +32,19 @@
 // // CREATE product
 // export const createProduct = async (req, res) => {
 //   try {
-//     const { title, price, oldPrice, category } = req.body;
-//     if (!title || !price || !category || !req.file) {
+//     let { title, price, oldPrice, category, subCategory, gender } = req.body;
+//     if (!title || !price || !category || !subCategory || !req.file) {
 //       return res.status(400).json({ error: "Missing required fields" });
 //     }
-//     const image = `/assets/${req.file.filename}`;
+
+//     // Convert comma-separated string to array for accessories
+//     if (category === "accessories" && typeof subCategory === "string") {
+//       subCategory = subCategory.split(",").map((s) => s.trim()).filter(Boolean);
+//     }
+
+//     const image = req.file.path; // Cloudinary URL
 //     const Model = getModelByCategory(category);
-//     const product = new Model({ title, price, oldPrice, category, image });
+//     const product = new Model({ title, price, oldPrice, category, subCategory, image, gender });
 //     await product.save();
 
 
@@ -81,7 +87,10 @@ export const getProducts = async (req, res) => {
     if (!Model) {
       return res.status(400).json({ error: "Invalid or missing category" });
     }
-    let products = await Model.find();
+    let filter = {};
+    if (category) filter.category = category;
+    if (req.query.gender) filter.gender = req.query.gender;
+    let products = await Model.find(filter);
     // If category is accessories, convert subCategory array to string for each product
     if (category === "accessories") {
       products = products.map((p) => {
@@ -178,6 +187,7 @@ export const updateProduct = async (req, res) => {
     foundProduct.price = price;
     foundProduct.oldPrice = oldPrice;
     foundProduct.category = category;
+    foundProduct.gender = gender;
     // Always replace the subCategory array
     let newSubCategory = subCategory;
     if (typeof newSubCategory === "string") {

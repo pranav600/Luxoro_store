@@ -10,6 +10,7 @@ const accessoriesSchema = new mongoose.Schema({
   oldPrice: { type: String },
   category: { type: String, required: true },
   subCategory: { type: [String], required: true },
+  gender: { type: String }, // Added for gender-based filtering
 });
 
 export default mongoose.models.Accessories ||
