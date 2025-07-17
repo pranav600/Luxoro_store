@@ -154,7 +154,7 @@ export const getProductById = async (req, res) => {
 export const updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
-    let { title, price, oldPrice, category, subCategory } = req.body;
+    let { title, price, oldPrice, category, subCategory, gender } = req.body;
 
     // Convert comma-separated string to array for accessories
     if (category === "accessories" && typeof subCategory === "string") {
