@@ -108,7 +108,7 @@ export const getProducts = async (req, res) => {
 // ➕ CREATE product
 export const createProduct = async (req, res) => {
   try {
-    let { title, price, oldPrice, category, subCategory } = req.body;
+    let { title, price, oldPrice, category, subCategory, gender } = req.body;
     if (!title || !price || !category || !subCategory || !req.file) {
       return res.status(400).json({ error: "Missing required fields" });
     }
@@ -120,7 +120,7 @@ export const createProduct = async (req, res) => {
 
     const image = req.file.path; // Cloudinary URL
     const Model = getModelByCategory(category);
-    const product = new Model({ title, price, oldPrice, category, subCategory, image });
+    const product = new Model({ title, price, oldPrice, category, subCategory, image, gender });
     await product.save();
 
     res.status(201).json({ message: "Product added!", product });
