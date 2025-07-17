@@ -9,6 +9,8 @@ const accessoriesSchema = new mongoose.Schema({
   price: { type: String, required: true },
   oldPrice: { type: String },
   category: { type: String, required: true },
+  subCategory: { type: [String], required: true },
 });
 
-export default mongoose.models.Accessories || mongoose.model("Accessories", accessoriesSchema);
+export default mongoose.models.Accessories ||
+  mongoose.model("Accessories", accessoriesSchema);

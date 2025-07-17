@@ -91,14 +91,19 @@ export const getProducts = async (req, res) => {
 // ➕ CREATE product
 export const createProduct = async (req, res) => {
   try {
-    const { title, price, oldPrice, category } = req.body;
-    if (!title || !price || !category || !req.file) {
+    let { title, price, oldPrice, category, subCategory } = req.body;
+    if (!title || !price || !category || !subCategory || !req.file) {
       return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    // Convert comma-separated string to array for accessories
+    if (category === "accessories" && typeof subCategory === "string") {
+      subCategory = subCategory.split(",").map((s) => s.trim()).filter(Boolean);
     }
 
     const image = req.file.path; // Cloudinary URL
     const Model = getModelByCategory(category);
-    const product = new Model({ title, price, oldPrice, category, image });
+    const product = new Model({ title, price, oldPrice, category, subCategory, image });
     await product.save();
 
     res.status(201).json({ message: "Product added!", product });
@@ -126,7 +131,12 @@ export const getProductById = async (req, res) => {
 export const updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, price, oldPrice, category } = req.body;
+    let { title, price, oldPrice, category, subCategory } = req.body;
+
+    // Convert comma-separated string to array for accessories
+    if (category === "accessories" && typeof subCategory === "string") {
+      subCategory = subCategory.split(",").map((s) => s.trim()).filter(Boolean);
+    }
 
     const models = [Summer, Royal, Winter, Accessories];
     let foundProduct = null;
@@ -154,6 +164,7 @@ export const updateProduct = async (req, res) => {
     foundProduct.price = price;
     foundProduct.oldPrice = oldPrice;
     foundProduct.category = category;
+    foundProduct.subCategory = subCategory;
 
     await foundProduct.save();
     res.json({ message: "Product updated", product: foundProduct });
