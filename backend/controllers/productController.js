@@ -90,15 +90,18 @@ export const getProducts = async (req, res) => {
     let filter = {};
     if (category) filter.category = category;
     if (req.query.gender) filter.gender = req.query.gender;
+    if (req.query.summerType) filter.summerType = req.query.summerType;
+    if (req.query.summerStyle) filter.summerStyle = req.query.summerStyle;
+    if (req.query.accessoriesType) filter.accessoriesType = req.query.accessoriesType;
     let products = await Model.find(filter);
-    // If category is accessories, convert subCategory array to string for each product
-    if (category === "accessories") {
-      products = products.map((p) => {
-        const obj = p.toObject();
-        obj.subCategory = Array.isArray(obj.subCategory) ? obj.subCategory.join(", ") : obj.subCategory;
-        return obj;
-      });
-    }
+    // Join arrays for easier frontend handling
+    products = products.map((p) => {
+      const obj = p.toObject();
+      if (Array.isArray(obj.accessoriesType)) obj.accessoriesType = obj.accessoriesType.join(", ");
+      if (Array.isArray(obj.summerType)) obj.summerType = obj.summerType.join(", ");
+      if (Array.isArray(obj.summerStyle)) obj.summerStyle = obj.summerStyle.join(", ");
+      return obj;
+    });
     res.json(products);
   } catch (err) {
     res.status(500).json({ error: "Failed to fetch products" });
@@ -108,19 +111,34 @@ export const getProducts = async (req, res) => {
 // ➕ CREATE product
 export const createProduct = async (req, res) => {
   try {
-    let { title, price, oldPrice, category, subCategory, gender } = req.body;
-    if (!title || !price || !category || !subCategory || !req.file) {
+    let { title, price, oldPrice, category, accessoriesType, gender, summerType, summerStyle } = req.body;
+    if (!title || !price || !category || !req.file) {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
-    // Convert comma-separated string to array for accessories
-    if (category === "accessories" && typeof subCategory === "string") {
-      subCategory = subCategory.split(",").map((s) => s.trim()).filter(Boolean);
+    // Convert comma-separated string to array for accessoriesType if needed
+    if ((category === "accessories" || category === "summer") && typeof accessoriesType === "string") {
+      accessoriesType = accessoriesType.split(",").map((s) => s.trim()).filter(Boolean);
+    }
+    if (category === "summer" && typeof summerType === "string") {
+      summerType = summerType.split(",").map((s) => s.trim()).filter(Boolean);
+    }
+    if (category === "summer" && typeof summerStyle === "string") {
+      summerStyle = summerStyle.split(",").map((s) => s.trim()).filter(Boolean);
     }
 
     const image = req.file.path; // Cloudinary URL
     const Model = getModelByCategory(category);
-    const product = new Model({ title, price, oldPrice, category, subCategory, image, gender });
+    let productData = { title, price, oldPrice, category, gender, image };
+    if (category === "accessories") {
+      productData.accessoriesType = accessoriesType;
+    }
+    if (category === "summer") {
+      productData.summerType = summerType;
+      productData.summerStyle = summerStyle;
+      productData.accessoriesType = accessoriesType; // If you want to support it for summer too
+    }
+    const product = new Model(productData);
     await product.save();
 
     res.status(201).json({ message: "Product added!", product });
@@ -138,9 +156,9 @@ export const getProductById = async (req, res) => {
       const product = await Model.findById(id);
       if (product) {
         const obj = product.toObject();
-        if (obj.category === "accessories" && Array.isArray(obj.subCategory)) {
-          obj.subCategory = obj.subCategory.join(", ");
-        }
+        if (Array.isArray(obj.accessoriesType)) obj.accessoriesType = obj.accessoriesType.join(", ");
+        if (Array.isArray(obj.summerType)) obj.summerType = obj.summerType.join(", ");
+        if (Array.isArray(obj.summerStyle)) obj.summerStyle = obj.summerStyle.join(", ");
         return res.json(obj);
       }
     }
@@ -154,11 +172,17 @@ export const getProductById = async (req, res) => {
 export const updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
-    let { title, price, oldPrice, category, subCategory, gender } = req.body;
+    let { title, price, oldPrice, category, accessoriesType, gender, summerType, summerStyle } = req.body;
 
-    // Convert comma-separated string to array for accessories
-    if (category === "accessories" && typeof subCategory === "string") {
-      subCategory = subCategory.split(",").map((s) => s.trim()).filter(Boolean);
+    // Convert comma-separated string to array for accessoriesType if needed
+    if ((category === "accessories" || category === "summer") && typeof accessoriesType === "string") {
+      accessoriesType = accessoriesType.split(",").map((s) => s.trim()).filter(Boolean);
+    }
+    if (category === "summer" && typeof summerType === "string") {
+      summerType = summerType.split(",").map((s) => s.trim()).filter(Boolean);
+    }
+    if (category === "summer" && typeof summerStyle === "string") {
+      summerStyle = summerStyle.split(",").map((s) => s.trim()).filter(Boolean);
     }
 
     const models = [Summer, Royal, Winter, Accessories];
@@ -188,12 +212,14 @@ export const updateProduct = async (req, res) => {
     foundProduct.oldPrice = oldPrice;
     foundProduct.category = category;
     foundProduct.gender = gender;
-    // Always replace the subCategory array
-    let newSubCategory = subCategory;
-    if (typeof newSubCategory === "string") {
-      newSubCategory = newSubCategory.split(",").map(s => s.trim()).filter(Boolean);
+    if (category === "accessories") {
+      foundProduct.accessoriesType = accessoriesType;
     }
-    foundProduct.subCategory = newSubCategory;
+    if (category === "summer") {
+      foundProduct.summerType = summerType;
+      foundProduct.summerStyle = summerStyle;
+      foundProduct.accessoriesType = accessoriesType; // If you want to support it for summer too
+    }
 
     await foundProduct.save();
     res.json({ message: "Product updated", product: foundProduct });
