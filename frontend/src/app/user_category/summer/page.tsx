@@ -17,7 +17,7 @@ interface Product {
 
 export default function SummerPage() {
   // Subcategory filter options
-  const typeOptions = ["shirt", "t shirt", "tank"];
+  const typeOptions = ["shirt", "t-shirt", "tank"];
   const styleOptions = ["solid", "striped", "printed", "oversized"];
   const genderOptions = ["male", "female"];
 
