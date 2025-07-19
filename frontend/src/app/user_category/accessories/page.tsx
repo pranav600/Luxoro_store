@@ -10,7 +10,7 @@ interface Product {
   oldPrice?: string;
   image: string;
   category?: string;
-  subCategory?: string; // Add this line for API response compatibility
+  accessoriesType?: string; // Add this line for API response compatibility
   gender?: string; // Add gender for filtering
 }
 
@@ -18,7 +18,7 @@ export default function AccessoriesPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [selectedSubCategory, setSelectedSubCategory] = useState<string | null>(null);
+  const [selectedAccessoriesType, setSelectedAccessoriesType] = useState<string | null>(null);
   const [selectedGender, setSelectedGender] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<string>("");
 
@@ -26,18 +26,18 @@ export default function AccessoriesPage() {
   const filterOptions = ["perfumes", "boxers", "socks", "belts"];
   const genderOptions = ["male", "female"];
 
-  // Filter by subCategory (case-insensitive) and gender
+  // Filter by accessoriesType (case-insensitive) and gender
   const filteredProducts = products.filter((p) => {
-    let subCatMatch = true;
+    let accessoriesTypeMatch = true;
     let genderMatch = true;
-    if (selectedSubCategory) {
-      if (!p.subCategory) return false;
-      subCatMatch = p.subCategory.toLowerCase().split(", ").includes(selectedSubCategory.toLowerCase());
+    if (selectedAccessoriesType) {
+      if (!p.accessoriesType) return false;
+      accessoriesTypeMatch = p.accessoriesType.toLowerCase().split(", ").includes(selectedAccessoriesType.toLowerCase());
     }
     if (selectedGender) {
       genderMatch = !!(p.gender && p.gender.toLowerCase() === selectedGender.toLowerCase());
     }
-    return subCatMatch && genderMatch;
+    return accessoriesTypeMatch && genderMatch;
   });
 
   // Handle sorting
@@ -77,7 +77,7 @@ export default function AccessoriesPage() {
     }
 
     fetchProducts();
-  }, [selectedGender]);
+  }, [selectedGender, selectedAccessoriesType]);
 
   const AboutSection = () => (
     <section className="w-full py-16 px-4 text-center">
@@ -106,8 +106,8 @@ export default function AccessoriesPage() {
                     type="radio"
                     name="category"
                     className="accent-black mr-2"
-                    checked={selectedSubCategory === option}
-                    onChange={() => setSelectedSubCategory(option)}
+                    checked={selectedAccessoriesType === option}
+                    onChange={() => setSelectedAccessoriesType(option)}
                   />
                   {option.charAt(0).toUpperCase() + option.slice(1)}
                 </label>
@@ -116,8 +116,8 @@ export default function AccessoriesPage() {
             <li>
               <button
                 className="mt-2 text-xs text-gray-500 underline font-mono cursor-pointer"
-                onClick={() => setSelectedSubCategory(null)}
-                disabled={!selectedSubCategory}
+                onClick={() => setSelectedAccessoriesType(null)}
+                disabled={!selectedAccessoriesType}
               >
                 Clear Filter
               </button>
