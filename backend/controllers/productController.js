@@ -93,6 +93,7 @@ export const getProducts = async (req, res) => {
     if (req.query.summerType) filter.summerType = req.query.summerType;
     if (req.query.summerStyle) filter.summerStyle = req.query.summerStyle;
     if (req.query.accessoriesType) filter.accessoriesType = req.query.accessoriesType;
+    if (req.query.royalType) filter.royalType = req.query.royalType;
     let products = await Model.find(filter);
     // Join arrays for easier frontend handling
     products = products.map((p) => {
@@ -100,6 +101,7 @@ export const getProducts = async (req, res) => {
       if (Array.isArray(obj.accessoriesType)) obj.accessoriesType = obj.accessoriesType.join(", ");
       if (Array.isArray(obj.summerType)) obj.summerType = obj.summerType.join(", ");
       if (Array.isArray(obj.summerStyle)) obj.summerStyle = obj.summerStyle.join(", ");
+      if (Array.isArray(obj.royalType)) obj.royalType = obj.royalType.join(", ");
       return obj;
     });
     res.json(products);
@@ -111,7 +113,7 @@ export const getProducts = async (req, res) => {
 // ➕ CREATE product
 export const createProduct = async (req, res) => {
   try {
-    let { title, price, oldPrice, category, accessoriesType, gender, summerType, summerStyle } = req.body;
+    let { title, price, oldPrice, category, accessoriesType, gender, summerType, summerStyle, royalType } = req.body;
     if (!title || !price || !category || !req.file) {
       return res.status(400).json({ error: "Missing required fields" });
     }
@@ -127,6 +129,10 @@ export const createProduct = async (req, res) => {
       summerStyle = summerStyle.split(",").map((s) => s.trim()).filter(Boolean);
     }
 
+    if (category === "royal" && typeof royalType === "string") {
+      royalType = royalType.split(",").map((s) => s.trim()).filter(Boolean);
+    }
+
     const image = req.file.path; // Cloudinary URL
     const Model = getModelByCategory(category);
     let productData = { title, price, oldPrice, category, gender, image };
@@ -137,6 +143,9 @@ export const createProduct = async (req, res) => {
       productData.summerType = summerType;
       productData.summerStyle = summerStyle;
       productData.accessoriesType = accessoriesType; // If you want to support it for summer too
+    }
+    if (category === "royal") {
+      productData.royalType = royalType;
     }
     const product = new Model(productData);
     await product.save();
@@ -159,6 +168,7 @@ export const getProductById = async (req, res) => {
         if (Array.isArray(obj.accessoriesType)) obj.accessoriesType = obj.accessoriesType.join(", ");
         if (Array.isArray(obj.summerType)) obj.summerType = obj.summerType.join(", ");
         if (Array.isArray(obj.summerStyle)) obj.summerStyle = obj.summerStyle.join(", ");
+        if (Array.isArray(obj.royalType)) obj.royalType = obj.royalType.join(", ");
         return res.json(obj);
       }
     }
@@ -172,7 +182,7 @@ export const getProductById = async (req, res) => {
 export const updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
-    let { title, price, oldPrice, category, accessoriesType, gender, summerType, summerStyle } = req.body;
+    let { title, price, oldPrice, category, accessoriesType, gender, summerType, summerStyle, royalType } = req.body;
 
     // Convert comma-separated string to array for accessoriesType if needed
     if ((category === "accessories" || category === "summer") && typeof accessoriesType === "string") {
@@ -183,6 +193,9 @@ export const updateProduct = async (req, res) => {
     }
     if (category === "summer" && typeof summerStyle === "string") {
       summerStyle = summerStyle.split(",").map((s) => s.trim()).filter(Boolean);
+    }
+    if (category === "royal" && typeof royalType === "string") {
+      royalType = royalType.split(",").map((s) => s.trim()).filter(Boolean);
     }
 
     const models = [Summer, Royal, Winter, Accessories];
@@ -220,7 +233,9 @@ export const updateProduct = async (req, res) => {
       foundProduct.summerStyle = summerStyle;
       foundProduct.accessoriesType = accessoriesType; // If you want to support it for summer too
     }
-
+    if (category === "royal") {
+      foundProduct.royalType = royalType;
+    }
     await foundProduct.save();
     res.json({ message: "Product updated", product: foundProduct });
   } catch (err) {

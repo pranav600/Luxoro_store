@@ -9,6 +9,8 @@ const royalSchema = new mongoose.Schema({
   price: { type: String, required: true },
   oldPrice: { type: String },
   category: { type: String, required: true },
+  royalType: { type: [String], required: true },
+  gender: { type: String }, // Added for gender-based filtering
 });
 
 export default mongoose.models.Royal || mongoose.model("Royal", royalSchema);
