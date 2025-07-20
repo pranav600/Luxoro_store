@@ -9,6 +9,9 @@ const winterSchema = new mongoose.Schema({
   price: { type: String, required: true },
   oldPrice: { type: String },
   category: { type: String, required: true },
+  winterType: { type: [String], required: true }, // e.g. jacket, hoodies, sweatshirts, hats
+  winterStyle: { type: [String], required: true }, // e.g. solid, striped, printed, oversized
+  gender: { type: String }, // Added for gender-based filtering
 });
 
 export default mongoose.models.Winter || mongoose.model("Winter", winterSchema);

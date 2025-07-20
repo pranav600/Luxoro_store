@@ -94,6 +94,8 @@ export const getProducts = async (req, res) => {
     if (req.query.summerStyle) filter.summerStyle = req.query.summerStyle;
     if (req.query.accessoriesType) filter.accessoriesType = req.query.accessoriesType;
     if (req.query.royalType) filter.royalType = req.query.royalType;
+    if (req.query.winterType) filter.winterType = req.query.winterType;
+    if (req.query.winterStyle) filter.winterStyle = req.query.winterStyle;
     let products = await Model.find(filter);
     // Join arrays for easier frontend handling
     products = products.map((p) => {
@@ -102,6 +104,8 @@ export const getProducts = async (req, res) => {
       if (Array.isArray(obj.summerType)) obj.summerType = obj.summerType.join(", ");
       if (Array.isArray(obj.summerStyle)) obj.summerStyle = obj.summerStyle.join(", ");
       if (Array.isArray(obj.royalType)) obj.royalType = obj.royalType.join(", ");
+      if (Array.isArray(obj.winterType)) obj.winterType = obj.winterType.join(", ");
+      if (Array.isArray(obj.winterStyle)) obj.winterStyle = obj.winterStyle.join(", ");
       return obj;
     });
     res.json(products);
@@ -128,7 +132,12 @@ export const createProduct = async (req, res) => {
     if (category === "summer" && typeof summerStyle === "string") {
       summerStyle = summerStyle.split(",").map((s) => s.trim()).filter(Boolean);
     }
-
+    if (category === "winter" && typeof winterType === "string") {
+      winterType = winterType.split(",").map((s) => s.trim()).filter(Boolean);
+    }
+    if (category === "winter" && typeof winterStyle === "string") {
+      winterStyle = winterStyle.split(",").map((s) => s.trim()).filter(Boolean);
+    }
     if (category === "royal" && typeof royalType === "string") {
       royalType = royalType.split(",").map((s) => s.trim()).filter(Boolean);
     }
@@ -142,7 +151,10 @@ export const createProduct = async (req, res) => {
     if (category === "summer") {
       productData.summerType = summerType;
       productData.summerStyle = summerStyle;
-      productData.accessoriesType = accessoriesType; // If you want to support it for summer too
+    }
+    if (category === "winter") {
+      productData.winterType = winterType;
+      productData.winterStyle = winterStyle;
     }
     if (category === "royal") {
       productData.royalType = royalType;
@@ -168,6 +180,8 @@ export const getProductById = async (req, res) => {
         if (Array.isArray(obj.accessoriesType)) obj.accessoriesType = obj.accessoriesType.join(", ");
         if (Array.isArray(obj.summerType)) obj.summerType = obj.summerType.join(", ");
         if (Array.isArray(obj.summerStyle)) obj.summerStyle = obj.summerStyle.join(", ");
+        if (Array.isArray(obj.winterType)) obj.winterType = obj.winterType.join(", ");
+        if (Array.isArray(obj.winterStyle)) obj.winterStyle = obj.winterStyle.join(", ");
         if (Array.isArray(obj.royalType)) obj.royalType = obj.royalType.join(", ");
         return res.json(obj);
       }
@@ -182,8 +196,11 @@ export const getProductById = async (req, res) => {
 export const updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
-    let { title, price, oldPrice, category, accessoriesType, gender, summerType, summerStyle, royalType } = req.body;
-
+    let { title, price, oldPrice, category, gender } = req.body;
+    let { summerType, summerStyle } = req.body;
+    let { accessoriesType } = req.body;
+    let { royalType } = req.body;
+    let { winterType, winterStyle } = req.body;
     // Convert comma-separated string to array for accessoriesType if needed
     if ((category === "accessories" || category === "summer") && typeof accessoriesType === "string") {
       accessoriesType = accessoriesType.split(",").map((s) => s.trim()).filter(Boolean);
@@ -193,6 +210,12 @@ export const updateProduct = async (req, res) => {
     }
     if (category === "summer" && typeof summerStyle === "string") {
       summerStyle = summerStyle.split(",").map((s) => s.trim()).filter(Boolean);
+    }
+    if (category === "winter" && typeof winterType === "string") {
+      winterType = winterType.split(",").map((s) => s.trim()).filter(Boolean);
+    }
+    if (category === "winter" && typeof winterStyle === "string") {
+      winterStyle = winterStyle.split(",").map((s) => s.trim()).filter(Boolean);
     }
     if (category === "royal" && typeof royalType === "string") {
       royalType = royalType.split(",").map((s) => s.trim()).filter(Boolean);
@@ -231,7 +254,10 @@ export const updateProduct = async (req, res) => {
     if (category === "summer") {
       foundProduct.summerType = summerType;
       foundProduct.summerStyle = summerStyle;
-      foundProduct.accessoriesType = accessoriesType; // If you want to support it for summer too
+    }
+    if (category === "winter") {
+      foundProduct.winterType = winterType;
+      foundProduct.winterStyle = winterStyle;
     }
     if (category === "royal") {
       foundProduct.royalType = royalType;
