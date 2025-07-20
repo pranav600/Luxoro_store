@@ -22,7 +22,7 @@ export default function RoyalPage() {
   const [selectedGender, setSelectedGender] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<string>("");
 
-  const filterOptions = ["suits", "blazers", "co-ord Sets"];
+  const filterOptions = ["suits", "blazers"];
   const genderOptions = ["male", "female"];
 
   // Filter by royalType (case-insensitive) and gender
