@@ -117,13 +117,13 @@ export const getProducts = async (req, res) => {
 // ➕ CREATE product
 export const createProduct = async (req, res) => {
   try {
-    let { title, price, oldPrice, category, accessoriesType, gender, summerType, summerStyle, royalType } = req.body;
+    let { title, price, oldPrice, category, accessoriesType, gender, summerType, summerStyle, royalType, winterType, winterStyle } = req.body;
     if (!title || !price || !category || !req.file) {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
     // Convert comma-separated string to array for accessoriesType if needed
-    if ((category === "accessories" || category === "summer") && typeof accessoriesType === "string") {
+    if (category === "accessories" && typeof accessoriesType === "string") {
       accessoriesType = accessoriesType.split(",").map((s) => s.trim()).filter(Boolean);
     }
     if (category === "summer" && typeof summerType === "string") {
