@@ -14,7 +14,7 @@ interface Product {
 export default function WinterPage() {
   // Subcategory filter options for winter
   const typeOptions = ["jacket", "hoodie", "sweatshirt", "hats"];
-  const styleOptions = ["solid", "patterned", "puffer"];
+  const styleOptions = ["solid", "printed", "puffer", "leather"];
   const genderOptions = ["male", "female"];
 
   // State for selected filters
