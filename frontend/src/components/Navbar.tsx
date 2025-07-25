@@ -1,6 +1,8 @@
 "use client";
 import React, { useState } from "react";
 import { FiShoppingCart, FiMenu, FiX } from "react-icons/fi";
+import { useCart } from "../context/cart-context";
+import { useRouter } from "next/navigation";
 import { useAuth } from "../context/auth-context";
 import ProfileCard from "./ProfileCard";
 import Link from "next/link";
@@ -20,9 +22,17 @@ const categoryLinks = [
 
 export default function Navbar() {
   const { user, logout } = useAuth();
+  const { totalItems } = useCart();
+  const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [categoriesOpen, setCategoriesOpen] = useState(false);
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  // Set hydration state on client side
+  React.useEffect(() => {
+    setIsHydrated(true);
+  }, []);
 
   // Optional: Close categories dropdown when clicking outside
   React.useEffect(() => {
@@ -116,7 +126,18 @@ export default function Navbar() {
           )}
         </div>
 
-        <FiShoppingCart className="text-2xl mx-2 text-black hover:text-gray-600 transition-colors cursor-pointer" />
+        {/* Desktop Cart Icon */}
+        <div className="relative inline-block">
+          <FiShoppingCart
+            className="text-2xl mx-2 text-black hover:text-gray-600 transition-colors cursor-pointer"
+            onClick={() => router.push('/cart')}
+          />
+          {isHydrated && totalItems > 0 && (
+            <span className="absolute -top-2 -right-2 bg-black text-white text-xs rounded-full px-1.5 py-0.5 min-w-[20px] text-center">
+              {totalItems}
+            </span>
+          )}
+        </div>
 
         {/* Avatar Profile Icon */}
         <div className="relative">
@@ -189,7 +210,17 @@ export default function Navbar() {
             </div>
           </details>
 
-          <FiShoppingCart className="text-2xl my-2 text-black hover:text-gray-600 transition-colors cursor-pointer" />
+          <div className="relative inline-block">
+  <FiShoppingCart
+    className="text-2xl my-2 text-black hover:text-gray-600 transition-colors cursor-pointer"
+    onClick={() => router.push('/cart')}
+  />
+  {isHydrated && totalItems > 0 && (
+    <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full px-1.5 py-0.5 min-w-[20px] text-center">
+      {totalItems}
+    </span>
+  )}
+</div>
 
           {user ? (
             <>

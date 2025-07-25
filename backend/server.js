@@ -79,6 +79,7 @@ mongoose
 app.use("/api/products", productRoutes);
 app.use("/api/auth", authRoutes);
 
+
 // Health check
 app.get("/", (req, res) => res.send("🟢 Luxoro API is running"));
 

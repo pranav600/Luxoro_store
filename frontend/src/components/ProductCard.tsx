@@ -48,8 +48,10 @@
 "use client";
 
 import React from "react";
-import Image from "next/image"; // ✅ Import next/image
+import Image from "next/image";
 import { motion } from "framer-motion";
+import { useCart } from "../context/cart-context";
+import { useRouter } from "next/navigation";
 
 interface ProductCardProps {
   image: string;
@@ -58,14 +60,50 @@ interface ProductCardProps {
   oldPrice?: string;
 }
 
+import Toast from "./Toast";
+
 const ProductCard: React.FC<ProductCardProps> = ({
   image,
   title,
   price,
   oldPrice,
 }) => {
+  const { addToCart, cart } = useCart();
+  const router = useRouter();
+  const id = title + image; // fallback unique id, ideally use product id
+  const [toastOpen, setToastOpen] = React.useState(false);
+
+  // Check if product is already in cart
+  const isInCart = cart.some(item => item.id === id);
+
+  const handleAddToCart = () => {
+    addToCart({
+      id,
+      name: title,
+      price: parseFloat(price),
+      image,
+      quantity: 1,
+    }, () => setToastOpen(true));
+  };
+
+  const handleGoToCart = () => {
+    router.push("/cart");
+  };
+
+  const handleBuyNow = () => {
+    addToCart({
+      id,
+      name: title,
+      price: parseFloat(price),
+      image,
+      quantity: 1,
+    });
+    router.push("/cart");
+  };
   return (
-    <motion.div
+    <>
+      <Toast open={toastOpen} message="Added to cart!" onClose={() => setToastOpen(false)} />
+      <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.3, ease: "easeOut" }}
@@ -106,24 +144,31 @@ const ProductCard: React.FC<ProductCardProps> = ({
           )}
         </div>
         <div className="flex flex-col items-center gap-3 mt-4 w-full">
-          {/* Add to Cart Button */}
+          {/* Add to Cart / Go to Cart Button */}
           <button
             type="button"
-            className="w-full px-6 py-3 rounded-lg font-mono text-gray-800 border border-gray-300 bg-white shadow-sm hover:bg-gray-100 active:scale-95 transition-all duration-200 cursor-pointer"
+            className={`w-full px-6 py-3 rounded-lg font-mono transition-all duration-200 cursor-pointer active:scale-95 ${
+              isInCart
+                ? "text-white bg-gray-500 border border-gray-500 hover:bg-gray-600 shadow-sm"
+                : "text-gray-800 border border-gray-300 bg-white shadow-sm hover:bg-gray-100"
+            }`}
+            onClick={isInCart ? handleGoToCart : handleAddToCart}
           >
-            Add to Cart
+            {isInCart ? "Go to Cart" : "Add to Cart"}
           </button>
 
           {/* Buy Now Button */}
           <button
             type="button"
             className="w-full px-6 py-3 rounded-lg font-mono text-white bg-gray-800 border border-gray-800 hover:bg-black active:scale-95 transition-all duration-200 shadow-sm cursor-pointer"
+            onClick={handleBuyNow}
           >
             Buy Now
           </button>
         </div>
       </div>
     </motion.div>
+    </>
   );
 };
 
