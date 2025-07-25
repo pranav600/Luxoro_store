@@ -129,11 +129,11 @@ export default function CartPage() {
           <span>Tax</span>
           <span>TBD</span>
         </div>
-        <div className="flex justify-between text-lg font-bold mt-2 text-gray-600">
+        <div className="flex justify-between text-lg font-mono font-bold mt-2 text-gray-600">
           <span>Total</span>
           <span>₹{totalAmount}</span>
         </div>
-        <button className="w-full mt-4 bg-black text-white py-3 rounded-lg font-bold text-lg shadow transition-colors cursor-pointer font-mono">
+        <button className="w-full mt-4 bg-black text-white py-3 rounded-lg font-mono font-bold text-lg shadow transition-colors cursor-pointer">
           Checkout
         </button>
       </div>
