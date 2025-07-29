@@ -1,10 +1,43 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { useCart } from "../../context/cart-context";
 import { FiShoppingCart } from "react-icons/fi";
 export default function CartPage() {
   const { cart, totalItems, removeFromCart, updateQuantity } = useCart();
+  const [promoCode, setPromoCode] = useState("");
+  const [appliedPromo, setAppliedPromo] = useState("");
+  const [promoError, setPromoError] = useState("");
+  
   const totalAmount = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  
+  // Calculate shipping cost
+  const shippingCost = totalAmount < 5000 ? 250 : 0;
+  
+  // Calculate discount
+  const discountPercentage = appliedPromo === "LUXORO10" ? 10 : 0;
+  const discountAmount = (totalAmount * discountPercentage) / 100;
+  
+  // Calculate final total
+  const finalTotal = totalAmount - discountAmount + shippingCost;
+  
+  // Handle promo code submission
+  const handlePromoSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setPromoError("");
+    
+    if (promoCode.toUpperCase() === "LUXORO10") {
+      setAppliedPromo("LUXORO10");
+      setPromoCode("");
+    } else if (promoCode.trim() !== "") {
+      setPromoError("Invalid promo code");
+    }
+  };
+  
+  // Remove applied promo
+  const removePromo = () => {
+    setAppliedPromo("");
+    setPromoError("");
+  };
 
   return (
     <div className="min-h-[80vh] flex flex-col md:flex-row gap-8 pt-25">
@@ -103,35 +136,70 @@ export default function CartPage() {
       </div>
       {/* Summary */}
       <div className="w-full md:w-96 bg-white rounded-lg shadow p-6 h-max flex flex-col gap-4">
-        <form className="flex items-center gap-2">
+        <form className="flex items-center gap-2" onSubmit={handlePromoSubmit}>
           <input
             type="text"
             placeholder="Promo Code"
+            value={promoCode}
+            onChange={(e) => setPromoCode(e.target.value)}
             className="flex-1 border rounded text-gray-500 border-gray-300 px-3 py-2 text-sm outline-none font-mono"
+            disabled={appliedPromo !== ""}
           />
           <button
             type="submit"
-            className="bg-black text-white px-4 py-2 rounded font-semibold text-sm cursor-pointer font-mono"
-            disabled
+            className="bg-black text-white px-4 py-2 rounded font-semibold text-sm cursor-pointer font-mono hover:bg-gray-800 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+            disabled={appliedPromo !== "" || promoCode.trim() === ""}
           >
             Submit
           </button>
         </form>
+        
+        {/* Promo code status */}
+        {appliedPromo && (
+          <div className="flex items-center justify-between bg-green-50 border border-green-200 rounded px-3 py-2">
+            <span className="text-green-700 text-sm font-mono">
+               "{appliedPromo}"
+            </span>
+            <button
+              onClick={removePromo}
+              className="text-red-500 text-xs hover:underline font-mono cursor-pointer"
+            >
+              Remove
+            </button>
+          </div>
+        )}
+        
+        {promoError && (
+          <div className="bg-red-50 border border-red-200 rounded px-3 py-2">
+            <span className="text-red-700 text-sm font-mono">{promoError}</span>
+          </div>
+        )}
+        <div className="flex justify-between text-sm font-mono text-gray-600">
+          <span>Subtotal</span>
+          <span>₹{totalAmount}</span>
+        </div>
+        
+        {discountAmount > 0 && (
+          <div className="flex justify-between text-sm font-mono text-green-600">
+            <span>Discount ({discountPercentage}%)</span>
+            <span>- ₹{discountAmount}</span>
+          </div>
+        )}
+        
         <div className="flex justify-between text-sm font-mono text-gray-600">
           <span>Shipping cost</span>
-          <span>TBD</span>
+          <span>{shippingCost > 0 ? `₹${shippingCost}` : 'Free'}</span>
         </div>
-        <div className="flex justify-between text-sm font-mono text-gray-600">
-          <span>Discount</span>
-          <span>- ₹0</span>
-        </div>
-        <div className="flex justify-between text-sm font-mono text-gray-600">
-          <span>Tax</span>
-          <span>TBD</span>
-        </div>
-        <div className="flex justify-between text-lg font-mono font-bold mt-2 text-gray-600">
+        
+        {totalAmount >= 5000 && (
+          <div className="text-xs text-green-600 font-mono">
+            🎉 Hurry up! You get free shipping.
+          </div>
+        )}
+
+        <div className="flex justify-between text-lg font-mono font-bold mt-2 text-gray-600 border-t pt-2">
           <span>Total</span>
-          <span>₹{totalAmount}</span>
+          <span>₹{finalTotal}</span>
         </div>
         <button className="w-full mt-4 bg-black text-white py-3 rounded-lg font-mono font-bold text-lg shadow transition-colors cursor-pointer">
           Checkout
