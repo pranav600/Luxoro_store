@@ -51,6 +51,8 @@ import { fileURLToPath } from "url";
 // Routes
 import productRoutes from "./routes/productRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
+
 
 // For __dirname in ES Modules
 const __filename = fileURLToPath(import.meta.url);
@@ -78,6 +80,7 @@ mongoose
 // Routes
 app.use("/api/products", productRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/users", userRoutes);
 
 
 // Health check
