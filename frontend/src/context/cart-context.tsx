@@ -22,6 +22,7 @@ interface CartContextType {
   addToCart: (item: CartItem, callback?: () => void) => void;
   removeFromCart: (id: string) => void;
   clearCart: () => void;
+  clearCartCompletely: () => void;
   updateQuantity: (id: string, quantity: number) => void;
   totalItems: number;
   syncCartWithBackend: () => Promise<void>;
@@ -30,7 +31,7 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 // API Base URL
-const API_BASE_URL = "http://localhost:8000/api";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:7000/api";
 
 // API utility functions
 const cartAPI = {
@@ -125,16 +126,29 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         try {
           const backendCart = await cartAPI.fetchCart(token);
           setCart(backendCart);
+          console.log("✅ Cart loaded from backend:", backendCart.length, "items");
         } catch (error) {
           console.error("Failed to fetch cart from backend:", error);
           // Fallback to localStorage
           const localCart = loadCart();
           setCart(localCart);
+          console.log("⚠️ Fallback to localStorage cart:", localCart.length, "items");
+          
+          // If we have local cart items, try to sync them to backend
+          if (localCart.length > 0) {
+            try {
+              await cartAPI.saveCart(token, localCart);
+              console.log("✅ Local cart synced to backend");
+            } catch (syncError) {
+              console.error("Failed to sync local cart to backend:", syncError);
+            }
+          }
         }
       } else {
         // User is not logged in - load from localStorage
         const localCart = loadCart();
         setCart(localCart);
+        console.log("📱 Cart loaded from localStorage:", localCart.length, "items");
       }
       setIsInitialized(true);
     };
@@ -189,8 +203,19 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   const clearCart = () => {
     setCart([]);
-    // Clear from localStorage when user logs out
+    // Only clear localStorage if explicitly requested (not on logout)
+    // This preserves cart for when user logs back in
+  };
+
+  const clearCartCompletely = () => {
+    setCart([]);
     clearLocalCart();
+    // Also clear from backend if user is authenticated
+    if (user && token) {
+      cartAPI.clearCart(token).catch(error => {
+        console.error("Failed to clear cart from backend:", error);
+      });
+    }
   };
 
   const syncCartWithBackend = async () => {
@@ -221,6 +246,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         addToCart,
         removeFromCart,
         clearCart,
+        clearCartCompletely,
         updateQuantity,
         totalItems,
         syncCartWithBackend,
