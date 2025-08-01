@@ -25,13 +25,13 @@ const authenticateToken = (req, res, next) => {
 // 🛒 GET USER CART
 router.get("/", authenticateToken, async (req, res) => {
   try {
-    console.log(`🛒 Fetching cart for user: ${req.user.id}`);
+    console.log(`🛒 Fetching cart for user: ${req.user.userId}`);
     
-    let cart = await Cart.findOne({ userId: req.user.id });
+    let cart = await Cart.findOne({ userId: req.user.userId });
     
     if (!cart) {
       // Create empty cart if none exists
-      cart = new Cart({ userId: req.user.id, items: [] });
+      cart = new Cart({ userId: req.user.userId, items: [] });
       await cart.save();
       console.log("✅ Created new empty cart for user");
     }
@@ -48,13 +48,13 @@ router.get("/", authenticateToken, async (req, res) => {
 router.post("/", authenticateToken, async (req, res) => {
   try {
     const { items } = req.body;
-    console.log(`🛒 Saving cart for user: ${req.user.id} with ${items.length} items`);
+    console.log(`🛒 Saving cart for user: ${req.user.userId} with ${items.length} items`);
     
-    let cart = await Cart.findOne({ userId: req.user.id });
+    let cart = await Cart.findOne({ userId: req.user.userId });
     
     if (!cart) {
       // Create new cart
-      cart = new Cart({ userId: req.user.id, items });
+      cart = new Cart({ userId: req.user.userId, items });
     } else {
       // Update existing cart
       cart.items = items;
@@ -72,9 +72,9 @@ router.post("/", authenticateToken, async (req, res) => {
 // 🛒 CLEAR USER CART
 router.delete("/", authenticateToken, async (req, res) => {
   try {
-    console.log(`🛒 Clearing cart for user: ${req.user.id}`);
+    console.log(`🛒 Clearing cart for user: ${req.user.userId}`);
     
-    let cart = await Cart.findOne({ userId: req.user.id });
+    let cart = await Cart.findOne({ userId: req.user.userId });
     
     if (!cart) {
       return res.status(200).json({ message: "Cart already empty" });
@@ -95,12 +95,12 @@ router.delete("/", authenticateToken, async (req, res) => {
 router.post("/add", authenticateToken, async (req, res) => {
   try {
     const { productId, name, price, image, size, quantity } = req.body;
-    console.log(`🛒 Adding item to cart for user: ${req.user.id}`);
+    console.log(`🛒 Adding item to cart for user: ${req.user.userId}`);
     
-    let cart = await Cart.findOne({ userId: req.user.id });
+    let cart = await Cart.findOne({ userId: req.user.userId });
     
     if (!cart) {
-      cart = new Cart({ userId: req.user.id, items: [] });
+      cart = new Cart({ userId: req.user.userId, items: [] });
     }
     
     // Check if item already exists in cart
@@ -129,9 +129,9 @@ router.post("/add", authenticateToken, async (req, res) => {
 router.delete("/item/:productId", authenticateToken, async (req, res) => {
   try {
     const { productId } = req.params;
-    console.log(`🛒 Removing item ${productId} from cart for user: ${req.user.id}`);
+    console.log(`🛒 Removing item ${productId} from cart for user: ${req.user.userId}`);
     
-    let cart = await Cart.findOne({ userId: req.user.id });
+    let cart = await Cart.findOne({ userId: req.user.userId });
     
     if (!cart) {
       return res.status(404).json({ message: "Cart not found" });

@@ -31,7 +31,8 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 // API Base URL
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:7000/api";
+// Replace 'your-backend-app-name' with your actual Render service name
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "https://Luxoro_store_backend.onrender.com/api";
 
 // API utility functions
 const cartAPI = {
@@ -126,14 +127,22 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         try {
           const backendCart = await cartAPI.fetchCart(token);
           setCart(backendCart);
-          console.log("✅ Cart loaded from backend:", backendCart.length, "items");
+          console.log(
+            "✅ Cart loaded from backend:",
+            backendCart.length,
+            "items"
+          );
         } catch (error) {
           console.error("Failed to fetch cart from backend:", error);
           // Fallback to localStorage
           const localCart = loadCart();
           setCart(localCart);
-          console.log("⚠️ Fallback to localStorage cart:", localCart.length, "items");
-          
+          console.log(
+            "⚠️ Fallback to localStorage cart:",
+            localCart.length,
+            "items"
+          );
+
           // If we have local cart items, try to sync them to backend
           if (localCart.length > 0) {
             try {
@@ -148,7 +157,11 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         // User is not logged in - load from localStorage
         const localCart = loadCart();
         setCart(localCart);
-        console.log("📱 Cart loaded from localStorage:", localCart.length, "items");
+        console.log(
+          "📱 Cart loaded from localStorage:",
+          localCart.length,
+          "items"
+        );
       }
       setIsInitialized(true);
     };
@@ -212,7 +225,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     clearLocalCart();
     // Also clear from backend if user is authenticated
     if (user && token) {
-      cartAPI.clearCart(token).catch(error => {
+      cartAPI.clearCart(token).catch((error) => {
         console.error("Failed to clear cart from backend:", error);
       });
     }
