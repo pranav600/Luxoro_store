@@ -142,7 +142,7 @@ export default function Navbar() {
         {/* Avatar Profile Icon */}
         <div className="relative">
           <button
-            className="ml-4 focus:outline-none cursor-pointer"
+            className="focus:outline-none cursor-pointer"
             onClick={() => setProfileOpen((v) => !v)}
             aria-label="Open profile menu"
           >

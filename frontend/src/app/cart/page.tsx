@@ -10,8 +10,8 @@ export default function CartPage() {
   
   const totalAmount = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
   
-  // Calculate shipping cost
-  const shippingCost = totalAmount < 5000 ? 250 : 0;
+  // Calculate shipping cost (0 when cart is empty)
+  const shippingCost = cart.length === 0 ? 0 : (totalAmount < 5000 ? 250 : 0);
   
   // Calculate discount
   const discountPercentage = appliedPromo === "LUXORO10" ? 10 : 0;
@@ -188,7 +188,7 @@ export default function CartPage() {
         
         <div className="flex justify-between text-sm font-mono text-gray-600">
           <span>Shipping cost</span>
-          <span>{shippingCost > 0 ? `₹${shippingCost}` : 'Free'}</span>
+          <span>{shippingCost > 0 ? `₹${shippingCost}` : '₹0'}</span>
         </div>
         
         {totalAmount >= 5000 && (

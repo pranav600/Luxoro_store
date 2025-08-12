@@ -32,36 +32,66 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 
 // API Base URL
 // Replace 'your-backend-app-name' with your actual Render service name
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "https://Luxoro_store_backend.onrender.com/api";
+const API_BASE_URL = "https://luxoro-store-backend.onrender.com/api";
 
 // API utility functions
 const cartAPI = {
   async fetchCart(token: string): Promise<CartItem[]> {
+    console.log(
+      "🔍 Fetching cart with token:",
+      token ? "Token present" : "No token"
+    );
+    console.log("🔍 API Base URL:", API_BASE_URL);
+
     const response = await fetch(`${API_BASE_URL}/cart`, {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
     });
-    if (!response.ok) throw new Error("Failed to fetch cart");
+
+    console.log("🔍 Cart fetch response status:", response.status);
+    console.log("🔍 Cart fetch response ok:", response.ok);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("❌ Cart fetch failed:", response.status, errorText);
+      throw new Error(
+        `Failed to fetch cart: ${response.status} - ${errorText}`
+      );
+    }
+
     const data = await response.json();
+    console.log("🔍 Cart data received:", data);
+
+    if (!data.items) {
+      console.warn("⚠️ No items field in response, returning empty array");
+      return [];
+    }
+
     return data.items.map((item: any) => ({
       id: item.productId,
       name: item.name,
       price: item.price,
       image: item.image,
+      size: item.size, // Added size field that was missing
       quantity: item.quantity,
     }));
   },
 
   async saveCart(token: string, items: CartItem[]): Promise<void> {
+    console.log("💾 Saving cart with", items.length, "items");
+
     const cartItems = items.map((item) => ({
       productId: item.id,
       name: item.name,
       price: item.price,
       image: item.image,
+      size: item.size, // Include size field
       quantity: item.quantity,
     }));
+
+    console.log("💾 Mapped cart items:", cartItems);
 
     const response = await fetch(`${API_BASE_URL}/cart`, {
       method: "POST",
@@ -71,7 +101,16 @@ const cartAPI = {
       },
       body: JSON.stringify({ items: cartItems }),
     });
-    if (!response.ok) throw new Error("Failed to save cart");
+
+    console.log("💾 Save cart response status:", response.status);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("❌ Save cart failed:", response.status, errorText);
+      throw new Error(`Failed to save cart: ${response.status} - ${errorText}`);
+    }
+
+    console.log("✅ Cart saved successfully");
   },
 
   async clearCart(token: string): Promise<void> {
@@ -118,13 +157,58 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const { user, token } = useAuth();
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [previousUser, setPreviousUser] = useState<typeof user>(null);
+
+  // Detect logout and clear cart from backend
+  useEffect(() => {
+    const handleLogout = async () => {
+      // Check if user just logged out (was logged in, now not)
+      if (previousUser && !user) {
+        console.log("🚪 User logged out, clearing cart from backend...");
+        
+        // Clear local cart immediately
+        setCart([]);
+        clearLocalCart();
+        console.log("✅ Local cart cleared on logout");
+        
+        // Try to clear from backend if we still have access
+        // Note: This might fail if token is already cleared, which is okay
+        try {
+          // Use a stored reference to the previous token if available
+          const storedToken = localStorage.getItem("token");
+          if (storedToken) {
+            await cartAPI.clearCart(storedToken);
+            console.log("✅ Cart cleared from backend on logout");
+          }
+        } catch (error) {
+          console.warn("⚠️ Could not clear cart from backend on logout (token may be expired):", error instanceof Error ? error.message : error);
+        }
+      }
+      
+      // Update previous user state
+      setPreviousUser(user);
+    };
+
+    handleLogout();
+  }, [user]);
 
   // Initialize cart based on user authentication state
   useEffect(() => {
     const initializeCart = async () => {
+      console.log("🚀 Initializing cart...");
+      console.log(
+        "🔍 User:",
+        user ? `${user.name} (${user.email})` : "Not logged in"
+      );
+      console.log(
+        "🔍 Token:",
+        token ? `${token.substring(0, 20)}...` : "No token"
+      );
+
       if (user && token) {
         // User is logged in - fetch cart from backend
         try {
+          console.log("🔄 Attempting to fetch cart from backend...");
           const backendCart = await cartAPI.fetchCart(token);
           setCart(backendCart);
           console.log(
@@ -133,7 +217,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
             "items"
           );
         } catch (error) {
-          console.error("Failed to fetch cart from backend:", error);
+          console.error("❌ Failed to fetch cart from backend:", error);
           // Fallback to localStorage
           const localCart = loadCart();
           setCart(localCart);
@@ -146,10 +230,14 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
           // If we have local cart items, try to sync them to backend
           if (localCart.length > 0) {
             try {
+              console.log("🔄 Attempting to sync local cart to backend...");
               await cartAPI.saveCart(token, localCart);
               console.log("✅ Local cart synced to backend");
             } catch (syncError) {
-              console.error("Failed to sync local cart to backend:", syncError);
+              console.error(
+                "❌ Failed to sync local cart to backend:",
+                syncError
+              );
             }
           }
         }
@@ -164,9 +252,12 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         );
       }
       setIsInitialized(true);
+      console.log("✅ Cart initialization complete");
     };
 
-    initializeCart();
+    // Add a small delay to ensure auth context is fully initialized
+    const timeoutId = setTimeout(initializeCart, 100);
+    return () => clearTimeout(timeoutId);
   }, [user, token]);
 
   // Save cart to appropriate storage when cart changes

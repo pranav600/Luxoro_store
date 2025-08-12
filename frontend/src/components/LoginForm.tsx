@@ -45,7 +45,7 @@ export default function LoginForm({ isAdmin }: LoginFormProps) {
     <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-gray-50 to-gray-200">
       <form
         onSubmit={handleLogin}
-        className="bg-white p-8 rounded-xl shadow-lg w-full max-w-md mt-24"
+        className="bg-white p-10 rounded-xl shadow-lg w-full max-w-md mt-24"
       >
         <h2 className="text-3xl font-bold mb-6 text-center text-black font-mono tracking-tight">
           {isAdmin ? "Admin Login" : "Login to Luxoro"}
