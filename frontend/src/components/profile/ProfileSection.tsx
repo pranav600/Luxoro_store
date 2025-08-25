@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { FiEdit2, FiSave, FiX, FiUpload } from 'react-icons/fi';
+import React, { useState, useRef } from 'react';
+import { FiEdit2, FiSave, FiX, FiUpload, FiUser } from 'react-icons/fi';
 import { useAuth } from '@/context/auth-context';
 
 interface ProfileSectionProps {
