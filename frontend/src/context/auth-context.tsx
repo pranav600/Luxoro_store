@@ -14,6 +14,7 @@ interface AuthContextType {
   login: (token: string, user: UserType) => void;
   logout: () => void;
   signup: (user: UserType, password: string) => void;
+  updateProfile: (updates: Partial<UserType>) => Promise<void>;
   updateProfileImage: (file: File) => void;
 }
 
@@ -81,6 +82,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   // Mock image upload
+  const updateProfile = async (updates: Partial<UserType>) => {
+    if (!user) return;
+    
+    try {
+      // Update local state
+      const updatedUser = { ...user, ...updates };
+      setUser(updatedUser);
+      
+      // Update localStorage
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+      
+      // If you want to persist the changes to the backend, you can add an API call here
+      // Example:
+      // await fetch('/api/users/me', {
+      //   method: 'PATCH',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //     'Authorization': `Bearer ${token}`
+      //   },
+      //   body: JSON.stringify(updates)
+      // });
+      
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      throw error;
+    }
+  };
+
   const updateProfileImage = (file: File) => {
     const reader = new FileReader();
     reader.onloadend = () => {
@@ -97,7 +126,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout, signup, updateProfileImage }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      token, 
+      login, 
+      logout, 
+      signup, 
+      updateProfile,
+      updateProfileImage 
+    }}>
       {children}
     </AuthContext.Provider>
   );
