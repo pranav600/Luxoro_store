@@ -121,16 +121,14 @@ export default function ProfileCard({ open, onClose }: ProfileCardProps) {
                   />
                 </div>
                 <div className="font-bold text-lg text-black">{user.name}</div>
-                <div className="text-gray-700 text-sm mb-2">{user.email}</div>
-                <button
-                  className="bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-900 transition-colors mt-2 flex items-center gap-2 cursor-pointer"
-                  onClick={() => {
-                    logout();
-                    onClose();
-                  }}
+                <div className="text-gray-700 text-sm mb-4">{user.email}</div>
+                <a
+                  href="/profile"
+                  className="block w-full bg-black text-white text-center px-4 py-2 rounded-lg hover:bg-gray-900 transition-colors mt-2"
+                  onClick={onClose}
                 >
-                  <FiLogOut /> Logout
-                </button>
+                  View Profile
+                </a>
               </div>
             )}
           </div>

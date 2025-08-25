@@ -224,18 +224,13 @@ export default function Navbar() {
 
           {user ? (
             <>
-              <span className="block w-full text-center py-1 text-black font-mono">
-                Hi, {user.name.split(" ")[0]}
-              </span>
-              <button
-                onClick={() => {
-                  logout();
-                  setMenuOpen(false);
-                }}
-                className="w-full bg-black text-white px-3 py-2 rounded-lg font-semibold hover:bg-gray-900 transition-colors mt-2"
+              <a
+                href="/profile"
+                className="block w-full text-center py-2 text-black font-mono hover:bg-gray-100"
+                onClick={() => setMenuOpen(false)}
               >
-                Logout
-              </button>
+                View Profile
+              </a>
             </>
           ) : (
             <>
