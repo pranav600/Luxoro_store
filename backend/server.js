@@ -78,11 +78,16 @@ mongoose
   .then(() => console.log("✅ MongoDB connected"))
   .catch((err) => console.error("❌ MongoDB connection error", err));
 
-// Routes
-app.use("/api/products", productRoutes);
+// Import auth middleware
+import { verifyToken } from "./middleware/auth.js";
+
+// Public routes
 app.use("/api/auth", authRoutes);
-app.use("/api/users", userRoutes);
-app.use("/api/cart", cartRoutes);
+
+// Protected routes
+app.use("/api/products", verifyToken, productRoutes);
+app.use("/api/users", verifyToken, userRoutes);
+app.use("/api/cart", verifyToken, cartRoutes);
 
 
 // Health check

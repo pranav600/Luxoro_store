@@ -38,6 +38,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(user);
     localStorage.setItem("token", token);
     localStorage.setItem("user", JSON.stringify(user));
+    
+    // Add token to all fetch requests
+    if (typeof window !== 'undefined') {
+      const originalFetch = window.fetch;
+      window.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
+        const response = await originalFetch(input, {
+          ...init,
+          headers: {
+            ...init?.headers,
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        // If we get a 401, log the user out
+        if (response.status === 401) {
+          logout();
+          window.location.href = '/login';
+          throw new Error('Session expired. Please log in again.');
+        }
+
+        return response;
+      };
+    }
   };
 
   const logout = () => {
@@ -45,7 +68,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-    // No redirect — let the UI handle what happens next
+    // Redirect to login page
+    if (typeof window !== 'undefined') {
+      window.location.href = '/login';
+    }
   };
 
   // Mock signup
