@@ -12,7 +12,7 @@ interface ProductCardProps {
   price: string;
   oldPrice?: string;
 }
-
+// Cart toast
 import Toast from "./Toast";
 
 const ProductCard: React.FC<ProductCardProps> = ({
