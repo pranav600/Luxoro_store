@@ -17,47 +17,11 @@ interface Order {
   }>;
 }
 
-export default function OrdersSection() {
-  // This is mock data - replace with actual data from your backend
-  const [orders, setOrders] = useState<Order[]>([
-    {
-      id: 'ORD-12345',
-      date: '2023-06-15',
-      status: 'delivered',
-      total: 249.98,
-      items: [
-        {
-          id: 'item-1',
-          name: 'Classic White T-Shirt',
-          price: 29.99,
-          quantity: 2,
-          image: '/placeholder-product.jpg',
-        },
-        {
-          id: 'item-2',
-          name: 'Slim Fit Jeans',
-          price: 59.99,
-          quantity: 1,
-          image: '/placeholder-product.jpg',
-        },
-      ],
-    },
-    {
-      id: 'ORD-12344',
-      date: '2023-06-10',
-      status: 'shipped',
-      total: 89.97,
-      items: [
-        {
-          id: 'item-3',
-          name: 'Cotton Socks (3-Pack)',
-          price: 29.99,
-          quantity: 1,
-          image: '/placeholder-product.jpg',
-        },
-      ],
-    },
-  ]);
+interface OrdersSectionProps {
+  orders?: Order[]; // Make orders prop optional
+}
+
+export default function OrdersSection({ orders = [] }: OrdersSectionProps) {
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -84,14 +48,20 @@ export default function OrdersSection() {
     });
   };
 
-  if (orders.length === 0) {
+  if (!orders || orders.length === 0) {
     return (
-      <div className="text-center py-12">
-        <FiPackage className="mx-auto h-12 w-12 text-gray-400" />
-        <h3 className="mt-2 text-sm font-medium text-gray-900">No orders</h3>
-        <p className="mt-1 text-sm text-gray-500">
-          You haven't placed any orders yet.
+      <div className="text-center py-16 px-4">
+        <FiPackage className="mx-auto h-16 w-16 text-gray-300" />
+        <h3 className="mt-4 text-lg font-medium font-mono text-gray-900">No orders yet</h3>
+        <p className="mt-2 text-sm text-gray-500 font-mono max-w-md mx-auto">
+          You haven't placed any orders yet. Start shopping to see your orders here.
         </p>
+        <button 
+          onClick={() => window.location.href = '/'}
+          className="mt-6 px-4 py-2 bg-black text-white text-sm font-medium font-mono rounded-md hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black cursor-pointer"
+        >
+          Start Shopping
+        </button>
       </div>
     );
   }

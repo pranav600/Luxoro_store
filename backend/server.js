@@ -53,6 +53,7 @@ import productRoutes from "./routes/productRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import cartRoutes from "./routes/cartRoutes.js";
+import orderRoutes from "./routes/orderRoutes.js";
 
 
 // For __dirname in ES Modules
@@ -88,6 +89,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/products", verifyToken, productRoutes);
 app.use("/api/users", verifyToken, userRoutes);
 app.use("/api/cart", verifyToken, cartRoutes);
+app.use("/api/orders", verifyToken, orderRoutes);
 
 
 // Health check

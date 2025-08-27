@@ -9,6 +9,10 @@ interface LoginFormProps {
 
 export default function LoginForm({ isAdmin }: LoginFormProps) {
   const router = useRouter();
+  const searchParams = new URLSearchParams(
+    typeof window !== 'undefined' ? window.location.search : ''
+  );
+  const redirectTo = searchParams.get('redirect') || '/';
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -20,20 +24,54 @@ export default function LoginForm({ isAdmin }: LoginFormProps) {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch(
-        isAdmin
-          ? `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/admin/auth/login`
-          : `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/auth/login`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password }),
-        }
-      );
+      const apiUrl = isAdmin
+        ? `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/admin/auth/login`
+        : `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/auth/login`;
+      
+      console.log('Making login request to:', apiUrl);
+      
+      const res = await fetch(apiUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      
       const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Login failed");
-      login(data.token, data.user);
-      router.push(isAdmin ? "/admin/add-product" : "/");
+      console.log('Raw login response:', {
+        status: res.status,
+        statusText: res.statusText,
+        data
+      });
+      
+      if (!res.ok) {
+        console.error('Login failed with status:', res.status);
+        throw new Error(data.message || `Login failed with status ${res.status}`);
+      }
+      
+      if (!data.token || !data.user) {
+        console.error('Missing token or user data in login response');
+        console.error('Response data:', data);
+        throw new Error('Invalid response from server: missing token or user data');
+      }
+      
+      console.log('Login successful, user data:', data.user);
+      console.log('Calling login function with token and user data');
+      
+      try {
+        await login(data.token, data.user);
+        console.log('Login function completed, checking localStorage...');
+        console.log('localStorage token:', localStorage.getItem('token') ? 'exists' : 'missing');
+        console.log('localStorage user:', localStorage.getItem('user') ? 'exists' : 'missing');
+        
+        // Small delay to ensure state updates complete
+        setTimeout(() => {
+          console.log('Redirecting to:', isAdmin ? "/admin/add-product" : redirectTo);
+          router.push(isAdmin ? "/admin/add-product" : redirectTo);
+        }, 100);
+      } catch (loginError) {
+        console.error('Error in login function:', loginError);
+        throw new Error('Failed to complete login process');
+      }
     } catch (err: any) {
       setError(err.message);
     } finally {
