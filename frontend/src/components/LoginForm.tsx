@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "../context/auth-context";
 
@@ -7,15 +7,11 @@ interface LoginFormProps {
   isAdmin?: boolean;
 }
 
-export default function LoginForm({ isAdmin }: LoginFormProps) {
-  const router = useRouter();
+// Wrapper component to handle Suspense for useSearchParams
+function LoginFormContent({ isAdmin }: LoginFormProps) {
   const searchParams = useSearchParams();
-  const redirectTo = searchParams?.get('redirect') || '/';
-  
-  useEffect(() => {
-    // This runs only on the client side
-    const params = new URLSearchParams(window.location.search);
-  }, []);
+  const redirectTo = searchParams.get('redirect') || '/';
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -30,49 +26,63 @@ export default function LoginForm({ isAdmin }: LoginFormProps) {
       const apiUrl = isAdmin
         ? `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/admin/auth/login`
         : `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/auth/login`;
-      
-      console.log('Making login request to:', apiUrl);
-      
+
+      console.log("Making login request to:", apiUrl);
+
       const res = await fetch(apiUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
-      
+
       const data = await res.json();
-      console.log('Raw login response:', {
+      console.log("Raw login response:", {
         status: res.status,
         statusText: res.statusText,
-        data
+        data,
       });
-      
+
       if (!res.ok) {
-        console.error('Login failed with status:', res.status);
-        throw new Error(data.message || `Login failed with status ${res.status}`);
+        console.error("Login failed with status:", res.status);
+        throw new Error(
+          data.message || `Login failed with status ${res.status}`
+        );
       }
-      
+
       if (!data.token || !data.user) {
-        console.error('Missing token or user data in login response');
-        console.error('Response data:', data);
-        throw new Error('Invalid response from server: missing token or user data');
+        console.error("Missing token or user data in login response");
+        console.error("Response data:", data);
+        throw new Error(
+          "Invalid response from server: missing token or user data"
+        );
       }
-      
-      console.log('Login successful, user data:', data.user);
-      console.log('Calling login function with token and user data');
-      
+
+      console.log("Login successful, user data:", data.user);
+      console.log("Calling login function with token and user data");
+
       try {
         await login(data.token, data.user);
-        console.log('Login function completed, checking localStorage...');
-        console.log('localStorage token:', localStorage.getItem('token') ? 'exists' : 'missing');
-        console.log('localStorage user:', localStorage.getItem('user') ? 'exists' : 'missing');
+        console.log("Login function completed, checking localStorage...");
+        console.log(
+          "localStorage token:",
+          localStorage.getItem("token") ? "exists" : "missing"
+        );
+        console.log(
+          "localStorage user:",
+          localStorage.getItem("user") ? "exists" : "missing"
+        );
+
         // Small delay to ensure state updates complete
         setTimeout(() => {
-          console.log('Redirecting to:', isAdmin ? "/admin/add-product" : redirectTo);
+          console.log(
+            "Redirecting to:",
+            isAdmin ? "/admin/add-product" : redirectTo
+          );
           router.push(isAdmin ? "/admin/add-product" : redirectTo);
         }, 100);
       } catch (loginError) {
-        console.error('Error in login function:', loginError);
-        throw new Error('Failed to complete login process');
+        console.error("Error in login function:", loginError);
+        throw new Error("Failed to complete login process");
       }
     } catch (err: any) {
       setError(err.message);
@@ -148,5 +158,13 @@ export default function LoginForm({ isAdmin }: LoginFormProps) {
         </div>
       </form>
     </div>
+  );
+}
+
+export default function LoginForm({ isAdmin }: LoginFormProps) {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <LoginFormContent isAdmin={isAdmin} />
+    </Suspense>
   );
 }
