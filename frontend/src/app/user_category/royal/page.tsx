@@ -61,10 +61,24 @@ export default function RoyalPage() {
       setError("");
       try {
         let url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/products?category=royal`;
+        if (selectedRoyalType) {
+          url += `&royalType=${selectedRoyalType}`;
+        }
         if (selectedGender) {
           url += `&gender=${selectedGender}`;
         }
-        const res = await fetch(url);
+        
+        // Get the auth token from localStorage
+        const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+        
+        const headers: HeadersInit = {};
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`;
+        }
+        
+        const res = await fetch(url, {
+          headers
+        });
         if (!res.ok) throw new Error("Failed to fetch products");
         const data = await res.json();
         setProducts(data || []);

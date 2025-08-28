@@ -41,7 +41,18 @@ export default function SummerPage() {
         if (selectedGender) {
           url += `&gender=${selectedGender}`;
         }
-        const res = await fetch(url);
+        
+        // Get the auth token from localStorage
+        const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+        
+        const headers: HeadersInit = {};
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`;
+        }
+        
+        const res = await fetch(url, {
+          headers
+        });
         if (!res.ok) throw new Error("Failed to fetch products");
         const data = await res.json();
         setProducts(data || []);

@@ -165,12 +165,12 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       // Check if user just logged out (was logged in, now not)
       if (previousUser && !user) {
         console.log("🚪 User logged out, clearing cart from backend...");
-        
+
         // Clear local cart immediately
         setCart([]);
         clearLocalCart();
         console.log("✅ Local cart cleared on logout");
-        
+
         // Try to clear from backend if we still have access
         // Note: This might fail if token is already cleared, which is okay
         try {
@@ -181,10 +181,13 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
             console.log("✅ Cart cleared from backend on logout");
           }
         } catch (error) {
-          console.warn("⚠️ Could not clear cart from backend on logout (token may be expired):", error instanceof Error ? error.message : error);
+          console.warn(
+            "⚠️ Could not clear cart from backend on logout (token may be expired):",
+            error instanceof Error ? error.message : error
+          );
         }
       }
-      
+
       // Update previous user state
       setPreviousUser(user);
     };
