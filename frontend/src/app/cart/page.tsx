@@ -1,9 +1,23 @@
 "use client";
 import React, { useState } from "react";
 import { useCart } from "../../context/cart-context";
-import { FiShoppingCart } from "react-icons/fi";
+import { useAuth } from "../../context/auth-context";
+import { FiShoppingCart, FiLogIn } from "react-icons/fi";
+import { useRouter } from "next/navigation";
 export default function CartPage() {
   const { cart, totalItems, removeFromCart, updateQuantity } = useCart();
+  const { user, isLoading } = useAuth();
+  const router = useRouter();
+  
+  const handleCheckout = () => {
+    if (!user) {
+      // Redirect to login page with a return URL
+      router.push('/login?redirect=/cart');
+      return;
+    }
+    // Proceed to checkout
+    router.push('/checkout');
+  };
   const [promoCode, setPromoCode] = useState("");
   const [appliedPromo, setAppliedPromo] = useState("");
   const [promoError, setPromoError] = useState("");
@@ -201,9 +215,23 @@ export default function CartPage() {
           <span>Total</span>
           <span>₹{finalTotal}</span>
         </div>
-        <button className="w-full mt-4 bg-black text-white py-3 rounded-lg font-mono font-bold text-lg shadow transition-colors cursor-pointer">
-          Checkout
-        </button>
+        {user ? (
+          <button
+            onClick={handleCheckout}
+            className="w-full bg-black text-white py-3 px-6 rounded-lg font-medium hover:bg-gray-900 transition-colors"
+            disabled={cart.length === 0}
+          >
+            Proceed to Checkout
+          </button>
+        ) : (
+          <button
+            onClick={handleCheckout}
+            className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+          >
+            <FiLogIn className="text-lg" />
+            Login to Checkout
+          </button>
+        )}
       </div>
     </div>
   );

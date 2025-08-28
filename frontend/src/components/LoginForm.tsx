@@ -1,6 +1,6 @@
 "use client";
-import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import React, { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "../context/auth-context";
 
 interface LoginFormProps {
@@ -9,10 +9,13 @@ interface LoginFormProps {
 
 export default function LoginForm({ isAdmin }: LoginFormProps) {
   const router = useRouter();
-  const searchParams = new URLSearchParams(
-    typeof window !== 'undefined' ? window.location.search : ''
-  );
-  const redirectTo = searchParams.get('redirect') || '/';
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams?.get('redirect') || '/';
+  
+  useEffect(() => {
+    // This runs only on the client side
+    const params = new URLSearchParams(window.location.search);
+  }, []);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -62,7 +65,6 @@ export default function LoginForm({ isAdmin }: LoginFormProps) {
         console.log('Login function completed, checking localStorage...');
         console.log('localStorage token:', localStorage.getItem('token') ? 'exists' : 'missing');
         console.log('localStorage user:', localStorage.getItem('user') ? 'exists' : 'missing');
-        
         // Small delay to ensure state updates complete
         setTimeout(() => {
           console.log('Redirecting to:', isAdmin ? "/admin/add-product" : redirectTo);

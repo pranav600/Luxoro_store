@@ -21,7 +21,7 @@ interface CartContextType {
   cart: CartItem[];
   addToCart: (item: CartItem, callback?: () => void) => void;
   removeFromCart: (id: string) => void;
-  clearCart: () => void;
+  clearCart: () => Promise<void>;
   clearCartCompletely: () => void;
   updateQuantity: (id: string, quantity: number) => void;
   totalItems: number;
@@ -153,11 +153,12 @@ export const useCart = () => {
   return context;
 };
 
-export const CartProvider = ({ children }: { children: ReactNode }) => {
+export function CartProvider({ children }: { children: ReactNode }) {
   const { user, token } = useAuth();
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isInitialized, setIsInitialized] = useState(false);
   const [previousUser, setPreviousUser] = useState<typeof user>(null);
+  const [tokenState, setTokenState] = useState(token);
 
   // Detect logout and clear cart from backend
   useEffect(() => {
@@ -308,10 +309,19 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     setCart((prev) => prev.filter((i) => i.id !== id));
   };
 
-  const clearCart = () => {
+  const clearCart = async () => {
     setCart([]);
-    // Only clear localStorage if explicitly requested (not on logout)
-    // This preserves cart for when user logs back in
+    saveCart([]);
+
+    // If user is authenticated, clear cart on backend
+    if (user && token) {
+      try {
+        await cartAPI.clearCart(token);
+      } catch (error) {
+        console.error("Failed to clear cart on backend:", error);
+        // Don't throw here to prevent UI issues
+      }
+    }
   };
 
   const clearCartCompletely = () => {
@@ -362,4 +372,4 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       {children}
     </CartContext.Provider>
   );
-};
+}
