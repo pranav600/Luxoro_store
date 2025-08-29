@@ -44,8 +44,9 @@ export default function SignupForm() {
         base64Image = result;
       }
 
+      const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://luxoro-store-backend.onrender.com';
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/auth/signup`,
+        `${baseURL}/api/auth/signup`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

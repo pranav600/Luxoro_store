@@ -37,7 +37,8 @@ export default function SummerPage() {
       setError("");
       try {
         // Only filter by gender on the server
-        let url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/products?category=summer`;
+        const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://luxoro-store-backend.onrender.com';
+        let url = `${baseURL}/api/products?category=summer`;
         if (selectedGender) {
           url += `&gender=${selectedGender}`;
         }

@@ -32,21 +32,23 @@ export default function WinterPage() {
       setError("");
       try {
         // Only filter by gender on the server
-        let url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/products?category=winter`;
+        const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://luxoro-store-backend.onrender.com';
+        let url = `${baseURL}/api/products?category=winter`;
         if (selectedGender) {
           url += `&gender=${selectedGender}`;
         }
-        
+
         // Get the auth token from localStorage
-        const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-        
+        const token =
+          typeof window !== "undefined" ? localStorage.getItem("token") : null;
+
         const headers: HeadersInit = {};
         if (token) {
-          headers['Authorization'] = `Bearer ${token}`;
+          headers["Authorization"] = `Bearer ${token}`;
         }
-        
+
         const res = await fetch(url, {
-          headers
+          headers,
         });
         if (!res.ok) throw new Error("Failed to fetch products");
         const data = await res.json();

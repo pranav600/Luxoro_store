@@ -18,7 +18,9 @@ export default function AccessoriesPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [selectedAccessoriesType, setSelectedAccessoriesType] = useState<string | null>(null);
+  const [selectedAccessoriesType, setSelectedAccessoriesType] = useState<
+    string | null
+  >(null);
   const [selectedGender, setSelectedGender] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<string>("");
 
@@ -32,10 +34,15 @@ export default function AccessoriesPage() {
     let genderMatch = true;
     if (selectedAccessoriesType) {
       if (!p.accessoriesType) return false;
-      accessoriesTypeMatch = p.accessoriesType.toLowerCase().split(", ").includes(selectedAccessoriesType.toLowerCase());
+      accessoriesTypeMatch = p.accessoriesType
+        .toLowerCase()
+        .split(", ")
+        .includes(selectedAccessoriesType.toLowerCase());
     }
     if (selectedGender) {
-      genderMatch = !!(p.gender && p.gender.toLowerCase() === selectedGender.toLowerCase());
+      genderMatch = !!(
+        p.gender && p.gender.toLowerCase() === selectedGender.toLowerCase()
+      );
     }
     return accessoriesTypeMatch && genderMatch;
   });
@@ -61,24 +68,26 @@ export default function AccessoriesPage() {
       setLoading(true);
       setError("");
       try {
-        let url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/products?category=accessories`;
+        const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://luxoro-store-backend.onrender.com';
+        let url = `${baseURL}/api/products?category=accessories`;
         if (selectedAccessoriesType) {
           url += `&accessoriesType=${selectedAccessoriesType}`;
         }
         if (selectedGender) {
           url += `&gender=${selectedGender}`;
         }
-        
+
         // Get the auth token from localStorage
-        const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-        
+        const token =
+          typeof window !== "undefined" ? localStorage.getItem("token") : null;
+
         const headers: HeadersInit = {};
         if (token) {
-          headers['Authorization'] = `Bearer ${token}`;
+          headers["Authorization"] = `Bearer ${token}`;
         }
-        
+
         const res = await fetch(url, {
-          headers
+          headers,
         });
         if (!res.ok) throw new Error("Failed to fetch products");
         const data = await res.json();

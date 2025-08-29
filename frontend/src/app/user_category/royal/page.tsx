@@ -60,7 +60,8 @@ export default function RoyalPage() {
       setLoading(true);
       setError("");
       try {
-        let url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/products?category=royal`;
+        const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://luxoro-store-backend.onrender.com';
+        let url = `${baseURL}/api/products?category=royal`;
         if (selectedRoyalType) {
           url += `&royalType=${selectedRoyalType}`;
         }
@@ -76,10 +77,15 @@ export default function RoyalPage() {
           headers['Authorization'] = `Bearer ${token}`;
         }
         
+        console.log('Fetching from URL:', url);
         const res = await fetch(url, {
           headers
         });
-        if (!res.ok) throw new Error("Failed to fetch products");
+        if (!res.ok) {
+          const errorText = await res.text();
+          console.error('API Error:', res.status, errorText);
+          throw new Error(`Failed to fetch products: ${res.status} ${res.statusText}`);
+        }
         const data = await res.json();
         setProducts(data || []);
       } catch (err: any) {

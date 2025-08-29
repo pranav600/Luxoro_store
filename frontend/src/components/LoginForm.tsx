@@ -23,9 +23,10 @@ function LoginFormContent({ isAdmin }: LoginFormProps) {
     setLoading(true);
     setError("");
     try {
+      const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://luxoro-store-backend.onrender.com';
       const apiUrl = isAdmin
-        ? `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/admin/auth/login`
-        : `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/auth/login`;
+        ? `${baseURL}/api/admin/auth/login`
+        : `${baseURL}/api/auth/login`;
 
       console.log("Making login request to:", apiUrl);
 
