@@ -28,33 +28,49 @@ export default function RoyalPage() {
   const genderOptions = ["male", "female"];
 
   /** -------------------- Fetch Products -------------------- */
-  const fetchProducts = async () => {
-    setLoading(true);
-    setError("");
-    try {
-      let url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/products?category=royal`;
-      if (selectedRoyalType) url += `&royalType=${selectedRoyalType}`;
-      if (selectedGender) url += `&gender=${selectedGender}`;
+ useEffect(() => {
+   async function fetchProducts() {
+     setLoading(true);
+     setError("");
+     try {
+       let url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/products?category=royal`;
+       if (selectedRoyalType) {
+         url += `&royalType=${selectedRoyalType}`;
+       }
+       if (selectedGender) {
+         url += `&gender=${selectedGender}`;
+       }
 
-      const res = await fetch(url);
-      if (!res.ok) {
-        const errText = await res.text();
-        console.error("API Error:", res.status, errText);
-        throw new Error("Failed to fetch products");
-      }
+       // ✅ Attach token
+       const token =
+         typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
-      const data = await res.json();
-      setProducts(data || []);
-    } catch (err: any) {
-      setError(err.message || "Error fetching products");
-    } finally {
-      setLoading(false);
-    }
-  };
+       const headers: HeadersInit = {
+         "Content-Type": "application/json",
+       };
+       if (token) {
+         headers["Authorization"] = `Bearer ${token}`;
+       }
 
-  useEffect(() => {
-    fetchProducts();
-  }, [selectedRoyalType, selectedGender]);
+       const res = await fetch(url, { headers });
+
+       if (!res.ok) {
+         const errorText = await res.text();
+         console.error("API Error:", res.status, errorText);
+         throw new Error(`Failed to fetch products: ${res.statusText}`);
+       }
+
+       const data = await res.json();
+       setProducts(data || []);
+     } catch (err: any) {
+       setError(err.message || "Error fetching products");
+     } finally {
+       setLoading(false);
+     }
+   }
+
+   fetchProducts();
+ }, [selectedGender, selectedRoyalType]);
 
   /** -------------------- Filter & Sort -------------------- */
   const filteredProducts = products.filter((p) => {
