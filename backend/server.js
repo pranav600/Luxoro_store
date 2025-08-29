@@ -9,8 +9,6 @@
 // import productRoutes from "./routes/productRoutes.js";
 // import authRoutes from "./routes/authRoutes.js";
 
-
-
 // const __filename = fileURLToPath(import.meta.url);
 // const __dirname = path.dirname(__filename);
 // dotenv.config({ path: path.resolve(__dirname, '.env') });
@@ -34,7 +32,6 @@
 // app.use("/api/products", productRoutes);
 // app.use("/api/auth", authRoutes);
 
-
 // app.get("/", (req, res) => res.send("API is running..."));
 
 // // Start Server
@@ -54,7 +51,6 @@ import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import cartRoutes from "./routes/cartRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
-
 
 // For __dirname in ES Modules
 const __filename = fileURLToPath(import.meta.url);
@@ -90,7 +86,6 @@ app.use("/api/products", verifyToken, productRoutes);
 app.use("/api/users", verifyToken, userRoutes);
 app.use("/api/cart", verifyToken, cartRoutes);
 app.use("/api/orders", verifyToken, orderRoutes);
-
 
 // Health check
 app.get("/", (req, res) => res.send("🟢 Luxoro API is running"));
