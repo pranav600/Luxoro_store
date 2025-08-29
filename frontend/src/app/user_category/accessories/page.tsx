@@ -10,44 +10,97 @@ interface Product {
   oldPrice?: string;
   image: string;
   category?: string;
-  accessoriesType?: string; // Add this line for API response compatibility
-  gender?: string; // Add gender for filtering
+  accessoriesType?: string;
+  gender?: string;
 }
 
 export default function AccessoriesPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [selectedAccessoriesType, setSelectedAccessoriesType] = useState<
-    string | null
-  >(null);
+  const [selectedAccessoriesType, setSelectedAccessoriesType] = useState<string | null>(
+    null
+  );
   const [selectedGender, setSelectedGender] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<string>("");
 
-  // Available filter options (should match backend)
   const filterOptions = ["perfumes", "boxers", "socks", "belts"];
   const genderOptions = ["male", "female"];
 
-  // Filter by accessoriesType (case-insensitive) and gender
+  /** -------------------- Fetch Products -------------------- */
+  useEffect(() => {
+    async function fetchProducts() {
+      setLoading(true);
+      setError("");
+
+      try {
+        const baseURL =
+          process.env.NEXT_PUBLIC_API_BASE_URL ||
+          "https://luxoro-store-backend.onrender.com";
+
+        let url = `${baseURL}/api/products?category=accessories`;
+        if (selectedAccessoriesType) {
+          url += `&accessoriesType=${selectedAccessoriesType}`;
+        }
+        if (selectedGender) {
+          url += `&gender=${selectedGender}`;
+        }
+
+        // ✅ Attach token if available
+        const token =
+          typeof window !== "undefined" ? localStorage.getItem("token") : null;
+
+        const headers: HeadersInit = {
+          "Content-Type": "application/json",
+        };
+        if (token) {
+          headers["Authorization"] = `Bearer ${token}`;
+        } else {
+          console.warn(
+            "⚠️ No token found in localStorage. Request may fail with 401."
+          );
+        }
+
+        console.log("📡 Fetching from:", url, "with headers:", headers);
+
+        const res = await fetch(url, { headers });
+
+        if (!res.ok) {
+          const errorText = await res.text();
+          console.error("❌ API Error:", res.status, errorText);
+          throw new Error(
+            `Failed to fetch products: ${res.status} ${res.statusText}`
+          );
+        }
+
+        const data = await res.json();
+        setProducts(data || []);
+      } catch (err: any) {
+        setError(err.message || "Error fetching products");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchProducts();
+  }, [selectedGender, selectedAccessoriesType]);
+
+  /** -------------------- Filter & Sort -------------------- */
   const filteredProducts = products.filter((p) => {
-    let accessoriesTypeMatch = true;
-    let genderMatch = true;
-    if (selectedAccessoriesType) {
-      if (!p.accessoriesType) return false;
-      accessoriesTypeMatch = p.accessoriesType
-        .toLowerCase()
-        .split(", ")
-        .includes(selectedAccessoriesType.toLowerCase());
-    }
-    if (selectedGender) {
-      genderMatch = !!(
-        p.gender && p.gender.toLowerCase() === selectedGender.toLowerCase()
-      );
-    }
+    let accessoriesTypeMatch = selectedAccessoriesType
+      ? p.accessoriesType
+          ?.toLowerCase()
+          .split(", ")
+          .includes(selectedAccessoriesType.toLowerCase())
+      : true;
+
+    let genderMatch = selectedGender
+      ? p.gender?.toLowerCase() === selectedGender.toLowerCase()
+      : true;
+
     return accessoriesTypeMatch && genderMatch;
   });
 
-  // Handle sorting
   const sortedProducts = [...filteredProducts].sort((a, b) => {
     switch (sortBy) {
       case "priceLowHigh":
@@ -63,45 +116,7 @@ export default function AccessoriesPage() {
     }
   });
 
-  useEffect(() => {
-    async function fetchProducts() {
-      setLoading(true);
-      setError("");
-      try {
-        const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://luxoro-store-backend.onrender.com';
-        let url = `${baseURL}/api/products?category=accessories`;
-        if (selectedAccessoriesType) {
-          url += `&accessoriesType=${selectedAccessoriesType}`;
-        }
-        if (selectedGender) {
-          url += `&gender=${selectedGender}`;
-        }
-
-        // Get the auth token from localStorage
-        const token =
-          typeof window !== "undefined" ? localStorage.getItem("token") : null;
-
-        const headers: HeadersInit = {};
-        if (token) {
-          headers["Authorization"] = `Bearer ${token}`;
-        }
-
-        const res = await fetch(url, {
-          headers,
-        });
-        if (!res.ok) throw new Error("Failed to fetch products");
-        const data = await res.json();
-        setProducts(data || []);
-      } catch (err: any) {
-        setError(err.message || "Error fetching products");
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchProducts();
-  }, [selectedGender, selectedAccessoriesType]);
-
+  /** -------------------- UI -------------------- */
   const AboutSection = () => (
     <section className="w-full py-16 px-4 text-center">
       <h2 className="text-black text-5xl md:text-6xl font-black font-mono mb-10">
@@ -115,9 +130,11 @@ export default function AccessoriesPage() {
       <div className="max-w-6xl mx-auto p-4">
         <AboutSection />
       </div>
+
       <div className="max-w-6xl mx-auto flex gap-6 p-4">
         {/* Sidebar filter */}
-        <aside className="w-48 hidden md:block border-r pr-4">
+        <aside className="w-52 hidden md:block border-r pr-4">
+          {/* Royal Type */}
           <h3 className="font-semibold mb-4 text-gray-700 font-mono">
             Categories
           </h3>
@@ -127,6 +144,7 @@ export default function AccessoriesPage() {
                 <label className="flex items-center cursor-pointer text-gray-700 font-mono">
                   <input
                     type="radio"
+                    aria-label={`Filter by ${option}`}
                     name="category"
                     className="accent-black mr-2"
                     checked={selectedAccessoriesType === option}
@@ -138,14 +156,20 @@ export default function AccessoriesPage() {
             ))}
             <li>
               <button
-                className="mt-2 text-xs text-gray-500 underline font-mono cursor-pointer"
+                className={`mt-2 text-xs underline font-mono cursor-pointer ${
+                  selectedAccessoriesType
+                    ? "text-gray-700"
+                    : "text-gray-400 cursor-not-allowed"
+                }`}
                 onClick={() => setSelectedAccessoriesType(null)}
                 disabled={!selectedAccessoriesType}
               >
-                Clear Filter
+                Clear Category
               </button>
             </li>
           </ul>
+
+          {/* Gender */}
           <h3 className="font-semibold mt-8 mb-4 text-gray-700 font-mono">
             Gender
           </h3>
@@ -155,6 +179,7 @@ export default function AccessoriesPage() {
                 <label className="flex items-center cursor-pointer text-gray-700 font-mono">
                   <input
                     type="radio"
+                    aria-label={`Filter by ${option}`}
                     name="gender"
                     className="accent-black mr-2"
                     checked={selectedGender === option}
@@ -166,7 +191,11 @@ export default function AccessoriesPage() {
             ))}
             <li>
               <button
-                className="mt-2 text-xs text-gray-500 underline font-mono cursor-pointer"
+                className={`mt-2 text-xs underline font-mono cursor-pointer ${
+                  selectedGender
+                    ? "text-gray-700"
+                    : "text-gray-400 cursor-not-allowed"
+                }`}
                 onClick={() => setSelectedGender(null)}
                 disabled={!selectedGender}
               >
@@ -175,8 +204,10 @@ export default function AccessoriesPage() {
             </li>
           </ul>
         </aside>
-        {/* Main content */}
+
+        {/* Main Content */}
         <section className="flex-1">
+          {/* Sort dropdown */}
           <div className="flex justify-end mb-4">
             <select
               className="border rounded px-2 py-1 text-sm font-mono text-gray-700 cursor-pointer"
@@ -190,8 +221,10 @@ export default function AccessoriesPage() {
               <option value="nameZA">Name: Z-A</option>
             </select>
           </div>
+
+          {/* Products */}
           {loading ? (
-            <p>Loading...</p>
+            <p className="text-gray-500">Loading products...</p>
           ) : error ? (
             <p className="text-red-600">{error}</p>
           ) : sortedProducts.length === 0 ? (

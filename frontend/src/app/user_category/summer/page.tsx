@@ -16,14 +16,14 @@ interface Product {
 }
 
 export default function SummerPage() {
-  // Subcategory filter options
+  // Filter options
   const typeOptions = ["shirt", "t-shirt", "tank"];
   const styleOptions = ["solid", "striped", "printed", "oversized"];
   const genderOptions = ["male", "female"];
 
-  // State for selected filters
-  const [selectedType, setSelectedType] = useState<string | null>(null);
-  const [selectedStyle, setSelectedStyle] = useState<string | null>(null);
+  // States
+  const [selectedSummerType, setSelectedSummerType] = useState<string | null>(null);
+  const [selectedSummerStyle, setSelectedSummerStyle] = useState<string | null>(null);
   const [selectedGender, setSelectedGender] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<string>("");
 
@@ -31,30 +31,51 @@ export default function SummerPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  /** -------------------- Fetch Products -------------------- */
   useEffect(() => {
     async function fetchProducts() {
       setLoading(true);
       setError("");
+
       try {
-        // Only filter by gender on the server
-        const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://luxoro-store-backend.onrender.com';
+        const baseURL =
+          process.env.NEXT_PUBLIC_API_BASE_URL ||
+          "https://luxoro-store-backend.onrender.com";
+
         let url = `${baseURL}/api/products?category=summer`;
+        if (selectedSummerType) {
+          url += `&type=${selectedSummerType}`;
+        }
+        if (selectedSummerStyle) {
+          url += `&style=${selectedSummerStyle}`;
+        }
         if (selectedGender) {
           url += `&gender=${selectedGender}`;
         }
-        
-        // Get the auth token from localStorage
-        const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-        
-        const headers: HeadersInit = {};
+
+        // ✅ Attach token
+        const token =
+          typeof window !== "undefined" ? localStorage.getItem("token") : null;
+
+        const headers: HeadersInit = {
+          "Content-Type": "application/json",
+        };
+
         if (token) {
-          headers['Authorization'] = `Bearer ${token}`;
+          headers["Authorization"] = `Bearer ${token}`;
         }
-        
-        const res = await fetch(url, {
-          headers
-        });
-        if (!res.ok) throw new Error("Failed to fetch products");
+
+        const res = await fetch(url, { headers });
+
+        if (!res.ok) {
+          if (res.status === 401) {
+            throw new Error(
+              "Unauthorized - No token provided or invalid token"
+            );
+          }
+          throw new Error("Failed to fetch products");
+        }
+
         const data = await res.json();
         setProducts(data || []);
       } catch (err: any) {
@@ -63,33 +84,35 @@ export default function SummerPage() {
         setLoading(false);
       }
     }
+
     fetchProducts();
-  }, [selectedGender]);
+  }, [selectedGender, selectedSummerType, selectedSummerStyle]);
 
-  const AboutSection = () => (
-    <section className="w-full py-16 px-4 text-center">
-      <h2 className="text-black text-5xl md:text-6xl font-black font-mono mb-10">
-        Summer <span className="text-black">Section</span>
-      </h2>
-    </section>
-  );
-
-  // Client-side filtering and sorting
+  /** -------------------- Filter & Sort -------------------- */
   const filteredProducts = products.filter((p) => {
     let typeMatch = true;
     let styleMatch = true;
     let genderMatch = true;
-    if (selectedType) {
+
+    if (selectedSummerType) {
       if (!p.summerType) return false;
-      typeMatch = p.summerType.toLowerCase().split(", ").includes(selectedType.toLowerCase());
+      typeMatch = p.summerType
+        .toLowerCase()
+        .split(", ")
+        .includes(selectedSummerType.toLowerCase());
     }
-    if (selectedStyle) {
+    if (selectedSummerStyle) {
       if (!p.summerStyle) return false;
-      styleMatch = p.summerStyle.toLowerCase().split(", ").includes(selectedStyle.toLowerCase());
+      styleMatch = p.summerStyle
+        .toLowerCase()
+        .split(", ")
+        .includes(selectedSummerStyle.toLowerCase());
     }
     if (selectedGender) {
-      genderMatch = !!(p.gender && p.gender.toLowerCase() === selectedGender.toLowerCase());
+      genderMatch =
+        !!p.gender && p.gender.toLowerCase() === selectedGender.toLowerCase();
     }
+
     return typeMatch && styleMatch && genderMatch;
   });
 
@@ -108,14 +131,25 @@ export default function SummerPage() {
     }
   });
 
+  /** -------------------- UI -------------------- */
+  const AboutSection = () => (
+    <section className="w-full py-16 px-4 text-center">
+      <h2 className="text-black text-5xl md:text-6xl font-black font-mono mb-10">
+        Summer <span className="text-black">Section</span>
+      </h2>
+    </section>
+  );
+
   return (
     <main className="min-h-screen pt-16 bg-white">
       <div className="max-w-6xl mx-auto p-4">
         <AboutSection />
       </div>
+
       <div className="max-w-6xl mx-auto flex gap-6 p-4">
-        {/* Sidebar filter */}
+        {/* Sidebar Filters */}
         <aside className="w-48 hidden md:block border-r pr-4">
+          {/* Type */}
           <h3 className="font-semibold mb-4 text-gray-700 font-mono">Type</h3>
           <ul className="space-y-2">
             {typeOptions.map((option) => (
@@ -125,8 +159,8 @@ export default function SummerPage() {
                     type="radio"
                     name="type"
                     className="accent-black mr-2"
-                    checked={selectedType === option}
-                    onChange={() => setSelectedType(option)}
+                    checked={selectedSummerType === option}
+                    onChange={() => setSelectedSummerType(option)}
                   />
                   {option.charAt(0).toUpperCase() + option.slice(1)}
                 </label>
@@ -134,15 +168,19 @@ export default function SummerPage() {
             ))}
             <li>
               <button
-                className="mt-2 text-xs text-gray-500 underline font-mono cursor-pointer"
-                onClick={() => setSelectedType(null)}
-                disabled={!selectedType}
+                className="mt-2 text-xs text-gray-500 underline font-mono"
+                onClick={() => setSelectedSummerType(null)}
+                disabled={!selectedSummerType}
               >
                 Clear Type
               </button>
             </li>
           </ul>
-          <h3 className="font-semibold mt-8 mb-4 text-gray-700 font-mono">Style</h3>
+
+          {/* Style */}
+          <h3 className="font-semibold mt-8 mb-4 text-gray-700 font-mono">
+            Style
+          </h3>
           <ul className="space-y-2">
             {styleOptions.map((option) => (
               <li key={option}>
@@ -151,8 +189,8 @@ export default function SummerPage() {
                     type="radio"
                     name="style"
                     className="accent-black mr-2"
-                    checked={selectedStyle === option}
-                    onChange={() => setSelectedStyle(option)}
+                    checked={selectedSummerStyle === option}
+                    onChange={() => setSelectedSummerStyle(option)}
                   />
                   {option.charAt(0).toUpperCase() + option.slice(1)}
                 </label>
@@ -160,15 +198,19 @@ export default function SummerPage() {
             ))}
             <li>
               <button
-                className="mt-2 text-xs text-gray-500 underline font-mono cursor-pointer"
-                onClick={() => setSelectedStyle(null)}
-                disabled={!selectedStyle}
+                className="mt-2 text-xs text-gray-500 underline font-mono"
+                onClick={() => setSelectedSummerStyle(null)}
+                disabled={!selectedSummerStyle}
               >
                 Clear Style
               </button>
             </li>
           </ul>
-          <h3 className="font-semibold mt-8 mb-4 text-gray-700 font-mono">Gender</h3>
+
+          {/* Gender */}
+          <h3 className="font-semibold mt-8 mb-4 text-gray-700 font-mono">
+            Gender
+          </h3>
           <ul className="space-y-2">
             {genderOptions.map((option) => (
               <li key={option}>
@@ -186,7 +228,7 @@ export default function SummerPage() {
             ))}
             <li>
               <button
-                className="mt-2 text-xs text-gray-500 underline font-mono cursor-pointer"
+                className="mt-2 text-xs text-gray-500 underline font-mono"
                 onClick={() => setSelectedGender(null)}
                 disabled={!selectedGender}
               >
@@ -195,8 +237,10 @@ export default function SummerPage() {
             </li>
           </ul>
         </aside>
-        {/* Main content */}
+
+        {/* Main Content */}
         <section className="flex-1">
+          {/* Sorting */}
           <div className="flex justify-end mb-4">
             <select
               className="border rounded px-2 py-1 text-sm font-mono text-gray-700 cursor-pointer"
@@ -210,6 +254,8 @@ export default function SummerPage() {
               <option value="nameZA">Name: Z-A</option>
             </select>
           </div>
+
+          {/* Products */}
           {loading ? (
             <p>Loading...</p>
           ) : error ? (

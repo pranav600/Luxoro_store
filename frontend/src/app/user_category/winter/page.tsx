@@ -9,17 +9,24 @@ interface Product {
   oldPrice?: string;
   image: string;
   category?: string;
+  winterType?: string;
+  winterStyle?: string;
+  gender?: string;
 }
 
 export default function WinterPage() {
-  // Subcategory filter options for winter
+  // Filter options
   const typeOptions = ["jacket", "hoodie", "sweatshirt", "hats"];
   const styleOptions = ["solid", "printed", "puffer", "leather"];
   const genderOptions = ["male", "female"];
 
-  // State for selected filters
-  const [selectedType, setSelectedType] = useState<string | null>(null);
-  const [selectedStyle, setSelectedStyle] = useState<string | null>(null);
+  // States
+  const [selectedWinterType, setSelectedWinterType] = useState<string | null>(
+    null
+  );
+  const [selectedWinterStyle, setSelectedWinterStyle] = useState<string | null>(
+    null
+  );
   const [selectedGender, setSelectedGender] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<string>("");
 
@@ -31,14 +38,21 @@ export default function WinterPage() {
       setLoading(true);
       setError("");
       try {
-        // Only filter by gender on the server
-        const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://luxoro-store-backend.onrender.com';
+        const baseURL =
+          process.env.NEXT_PUBLIC_API_BASE_URL ||
+          "https://luxoro-store-backend.onrender.com";
         let url = `${baseURL}/api/products?category=winter`;
+        if (selectedWinterType) {
+          url += `&type=${selectedWinterType}`;
+        }
+        if (selectedWinterStyle) {
+          url += `&style=${selectedWinterStyle}`;
+        }
         if (selectedGender) {
           url += `&gender=${selectedGender}`;
         }
 
-        // Get the auth token from localStorage
+        // ✅ Attach token
         const token =
           typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
@@ -60,34 +74,26 @@ export default function WinterPage() {
       }
     }
     fetchProducts();
-  }, [selectedGender]);
+  }, [selectedGender, selectedWinterType, selectedWinterStyle]);
 
-  const AboutSection = () => (
-    <section className="w-full py-16 px-4 text-center">
-      <h2 className="text-black text-5xl md:text-6xl font-black font-mono mb-10">
-        Winter <span className="text-black">Section</span>
-      </h2>
-    </section>
-  );
-
-  // Client-side filtering and sorting
+  /** -------------------- Filter & Sort -------------------- */
   const filteredProducts = products.filter((p) => {
     let typeMatch = true;
     let styleMatch = true;
     let genderMatch = true;
-    if (selectedType) {
+    if (selectedWinterType) {
       if (!(p as any).winterType) return false;
       typeMatch = (p as any).winterType
         ?.toLowerCase()
         .split(", ")
-        .includes(selectedType.toLowerCase());
+        .includes(selectedWinterType.toLowerCase());
     }
-    if (selectedStyle) {
+    if (selectedWinterStyle) {
       if (!(p as any).winterStyle) return false;
       styleMatch = (p as any).winterStyle
         ?.toLowerCase()
         .split(", ")
-        .includes(selectedStyle.toLowerCase());
+        .includes(selectedWinterStyle.toLowerCase());
     }
     if (selectedGender) {
       genderMatch = !!(
@@ -112,6 +118,15 @@ export default function WinterPage() {
         return 0;
     }
   });
+  
+  /** -------------------- UI -------------------- */
+  const AboutSection = () => (
+    <section className="w-full py-16 px-4 text-center">
+      <h2 className="text-black text-5xl md:text-6xl font-black font-mono mb-10">
+        Winter <span className="text-black">Section</span>
+      </h2>
+    </section>
+  );
 
   return (
     <main className="min-h-screen pt-16 bg-white">
@@ -130,8 +145,8 @@ export default function WinterPage() {
                     type="radio"
                     name="type"
                     className="accent-black mr-2"
-                    checked={selectedType === option}
-                    onChange={() => setSelectedType(option)}
+                    checked={selectedWinterType === option}
+                    onChange={() => setSelectedWinterType(option)}
                   />
                   {option.charAt(0).toUpperCase() + option.slice(1)}
                 </label>
@@ -140,8 +155,8 @@ export default function WinterPage() {
             <li>
               <button
                 className="mt-2 text-xs text-gray-500 underline font-mono cursor-pointer"
-                onClick={() => setSelectedType(null)}
-                disabled={!selectedType}
+                onClick={() => setSelectedWinterType(null)}
+                disabled={!selectedWinterType}
               >
                 Clear Type
               </button>
@@ -158,8 +173,8 @@ export default function WinterPage() {
                     type="radio"
                     name="style"
                     className="accent-black mr-2"
-                    checked={selectedStyle === option}
-                    onChange={() => setSelectedStyle(option)}
+                    checked={selectedWinterStyle === option}
+                    onChange={() => setSelectedWinterStyle(option)}
                   />
                   {option.charAt(0).toUpperCase() + option.slice(1)}
                 </label>
@@ -168,8 +183,8 @@ export default function WinterPage() {
             <li>
               <button
                 className="mt-2 text-xs text-gray-500 underline font-mono cursor-pointer"
-                onClick={() => setSelectedStyle(null)}
-                disabled={!selectedStyle}
+                onClick={() => setSelectedWinterStyle(null)}
+                disabled={!selectedWinterStyle}
               >
                 Clear Style
               </button>
