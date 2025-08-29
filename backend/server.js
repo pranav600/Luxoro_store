@@ -80,9 +80,9 @@ import { verifyToken } from "./middleware/auth.js";
 
 // Public routes
 app.use("/api/auth", authRoutes);
+app.use("/api/products", productRoutes);
 
 // Protected routes
-app.use("/api/products", verifyToken, productRoutes);
 app.use("/api/users", verifyToken, userRoutes);
 app.use("/api/cart", verifyToken, cartRoutes);
 app.use("/api/orders", verifyToken, orderRoutes);
