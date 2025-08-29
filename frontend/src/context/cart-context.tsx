@@ -39,44 +39,52 @@ const cartAPI = {
   async fetchCart(token: string): Promise<CartItem[]> {
     console.log(
       "🔍 Fetching cart with token:",
-      token ? "Token present" : "No token"
+      token ? `${token.substring(0, 20)}...` : "No token"
     );
     console.log("🔍 API Base URL:", API_BASE_URL);
 
-    const response = await fetch(`${API_BASE_URL}/cart`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    });
+    try {
+      const response = await fetch(`${API_BASE_URL}/cart`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
 
-    console.log("🔍 Cart fetch response status:", response.status);
-    console.log("🔍 Cart fetch response ok:", response.ok);
+      console.log("🔍 Cart fetch response status:", response.status);
+      console.log("🔍 Cart fetch response ok:", response.ok);
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("❌ Cart fetch failed:", response.status, errorText);
-      throw new Error(
-        `Failed to fetch cart: ${response.status} - ${errorText}`
-      );
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("❌ Cart fetch failed:", response.status, errorText);
+        throw new Error(
+          `Failed to fetch cart: ${response.status} - ${errorText}`
+        );
+      }
+
+      const data = await response.json();
+      console.log("🔍 Cart data received:", JSON.stringify(data, null, 2));
+
+      if (!data || !Array.isArray(data.items)) {
+        console.warn("⚠️ Invalid cart data structure, returning empty array");
+        return [];
+      }
+
+      const mappedItems = data.items.map((item: any) => ({
+        id: item.productId,
+        name: item.name,
+        price: item.price,
+        image: item.image,
+        size: item.size,
+        quantity: item.quantity,
+      }));
+
+      console.log("🔍 Mapped cart items:", mappedItems);
+      return mappedItems;
+    } catch (error) {
+      console.error("❌ Network error fetching cart:", error);
+      throw error;
     }
-
-    const data = await response.json();
-    console.log("🔍 Cart data received:", data);
-
-    if (!data.items) {
-      console.warn("⚠️ No items field in response, returning empty array");
-      return [];
-    }
-
-    return data.items.map((item: any) => ({
-      id: item.productId,
-      name: item.name,
-      price: item.price,
-      image: item.image,
-      size: item.size, // Added size field that was missing
-      quantity: item.quantity,
-    }));
   },
 
   async saveCart(token: string, items: CartItem[]): Promise<void> {
@@ -154,7 +162,7 @@ export const useCart = () => {
 };
 
 export function CartProvider({ children }: { children: ReactNode }) {
-  const { user, token } = useAuth();
+  const { user, token, isLoading } = useAuth();
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isInitialized, setIsInitialized] = useState(false);
   const [previousUser, setPreviousUser] = useState<typeof user>(null);
@@ -182,6 +190,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   // Initialize cart based on user authentication state
   useEffect(() => {
+    // Don't initialize cart until auth is loaded
+    if (isLoading) {
+      console.log("⏳ Waiting for auth to initialize...");
+      return;
+    }
+
     const initializeCart = async () => {
       console.log("🚀 Initializing cart...");
       console.log(
@@ -243,10 +257,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
       console.log("✅ Cart initialization complete");
     };
 
-    // Add a small delay to ensure auth context is fully initialized
-    const timeoutId = setTimeout(initializeCart, 100);
-    return () => clearTimeout(timeoutId);
-  }, [user, token]);
+    initializeCart();
+  }, [user, token, isLoading]);
 
   // Save cart to appropriate storage when cart changes
   useEffect(() => {
