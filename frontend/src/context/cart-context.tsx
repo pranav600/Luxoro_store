@@ -160,33 +160,17 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [previousUser, setPreviousUser] = useState<typeof user>(null);
   const [tokenState, setTokenState] = useState(token);
 
-  // Detect logout and clear cart from backend
+  // Detect logout and clear local cart only (preserve backend cart)
   useEffect(() => {
     const handleLogout = async () => {
       // Check if user just logged out (was logged in, now not)
       if (previousUser && !user) {
-        console.log("🚪 User logged out, clearing cart from backend...");
+        console.log("🚪 User logged out, clearing local cart only...");
 
-        // Clear local cart immediately
+        // Clear local cart immediately (but preserve backend cart for next login)
         setCart([]);
         clearLocalCart();
-        console.log("✅ Local cart cleared on logout");
-
-        // Try to clear from backend if we still have access
-        // Note: This might fail if token is already cleared, which is okay
-        try {
-          // Use a stored reference to the previous token if available
-          const storedToken = localStorage.getItem("token");
-          if (storedToken) {
-            await cartAPI.clearCart(storedToken);
-            console.log("✅ Cart cleared from backend on logout");
-          }
-        } catch (error) {
-          console.warn(
-            "⚠️ Could not clear cart from backend on logout (token may be expired):",
-            error instanceof Error ? error.message : error
-          );
-        }
+        console.log("✅ Local cart cleared on logout (backend cart preserved)");
       }
 
       // Update previous user state
