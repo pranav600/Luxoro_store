@@ -200,6 +200,7 @@ export default function AddressesSection() {
     saveAddresses(updatedAddresses);
     resetForm();
     setEditingAddress(null);
+    setIsAdding(false);
   };
 
   const handleDeleteAddress = (addressId: string) => {
