@@ -15,11 +15,15 @@ router.get("/profile", async (req, res) => {
     }
 
     const token = authHeader.split(" ")[1];
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    let decoded;
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET);
+    } catch (err) {
+      return res.status(401).json({ message: "Invalid or expired token" });
+    }
 
     // 🔑 Find user by ID from token
-    const user = await User.findById(decoded.id).select("-password");
-
+    const user = await User.findById(decoded.userId).select("-password");
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -31,45 +35,7 @@ router.get("/profile", async (req, res) => {
   }
 });
 
-// 👥 GET ALL USERS (for admin panel)
-router.get("/", async (req, res) => {
-  try {
-    console.log("📋 Fetching all users for admin panel...");
-
-    // Fetch all users but exclude password field for security
-    const users = await User.find({})
-      .select("-password")
-      .sort({ createdAt: -1 });
-
-    console.log(`✅ Found ${users.length} users`);
-    res.status(200).json(users);
-  } catch (error) {
-    console.error("❌ Error fetching users:", error.message);
-    res.status(500).json({ message: "Server error while fetching users" });
-  }
-});
-
-// 👤 GET USER BY ID
-router.get("/:id", async (req, res) => {
-  try {
-    const { id } = req.params;
-    console.log(`🔍 Fetching user with ID: ${id}`);
-
-    const user = await User.findById(id).select("-password");
-
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    console.log(`✅ User found: ${user.name}`);
-    res.status(200).json(user);
-  } catch (error) {
-    console.error("❌ Error fetching user:", error.message);
-    res.status(500).json({ message: "Server error while fetching user" });
-  }
-});
-
-// 📊 GET USER STATS (for admin dashboard)
+// 📊 GET USER STATS (for admin dashboard) - ⚡ Moved above /:id
 router.get("/stats/overview", async (req, res) => {
   try {
     console.log("📊 Fetching user statistics...");
@@ -89,18 +55,47 @@ router.get("/stats/overview", async (req, res) => {
       createdAt: { $gte: thirtyDaysAgo },
     });
 
-    const stats = {
-      totalUsers,
-      usersWithPhone,
-      usersWithImage,
-      recentUsers,
-    };
+    const stats = { totalUsers, usersWithPhone, usersWithImage, recentUsers };
 
     console.log("✅ User stats calculated:", stats);
     res.status(200).json(stats);
   } catch (error) {
     console.error("❌ Error fetching user stats:", error.message);
     res.status(500).json({ message: "Server error while fetching user stats" });
+  }
+});
+
+// 👥 GET ALL USERS (for admin panel)
+router.get("/", async (req, res) => {
+  try {
+    console.log("📋 Fetching all users for admin panel...");
+    const users = await User.find({})
+      .select("-password")
+      .sort({ createdAt: -1 });
+    console.log(`✅ Found ${users.length} users`);
+    res.status(200).json(users);
+  } catch (error) {
+    console.error("❌ Error fetching users:", error.message);
+    res.status(500).json({ message: "Server error while fetching users" });
+  }
+});
+
+// 👤 GET USER BY ID
+router.get("/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    console.log(`🔍 Fetching user with ID: ${id}`);
+
+    const user = await User.findById(id).select("-password");
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    console.log(`✅ User found: ${user.name}`);
+    res.status(200).json(user);
+  } catch (error) {
+    console.error("❌ Error fetching user:", error.message);
+    res.status(500).json({ message: "Server error while fetching user" });
   }
 });
 
@@ -111,7 +106,6 @@ router.delete("/:id", async (req, res) => {
     console.log(`🗑️ Attempting to delete user with ID: ${id}`);
 
     const deletedUser = await User.findByIdAndDelete(id);
-
     if (!deletedUser) {
       console.log(`❌ User with ID ${id} not found`);
       return res.status(404).json({ message: "User not found" });
