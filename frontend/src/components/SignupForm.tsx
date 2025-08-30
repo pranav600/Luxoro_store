@@ -3,7 +3,6 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../context/auth-context";
 
-interface SignupFormProps {}
 
 export default function SignupForm() {
   const router = useRouter();
@@ -26,8 +25,10 @@ export default function SignupForm() {
     }
   };
 
+
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
+    
     setLoading(true);
     setError("");
 
@@ -134,10 +135,14 @@ export default function SignupForm() {
               id="phone"
               className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black text-black"
               value={phone}
-              onChange={(e) => setPhone(e.target.value)}
+              onChange={(e) => {
+                const value = e.target.value.replace(/\D/g, '').slice(0, 10);
+                setPhone(value);
+              }}
               required
-              pattern="^[0-9]{10,15}$"
-              placeholder="e.g. 919876543210"
+              pattern="^[0-9]{10}$"
+              placeholder="e.g. 9876543210"
+              maxLength={10}
             />
           </div>
 

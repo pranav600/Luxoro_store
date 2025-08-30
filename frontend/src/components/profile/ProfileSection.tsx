@@ -60,14 +60,14 @@ export default function ProfileSection({ user }: ProfileSectionProps) {
                   setEmail(user.email);
                   setIsEditing(false);
                 }}
-                className="p-2 text-gray-500 hover:text-gray-700 transition-colors"
+                className="p-2 text-gray-500 hover:text-gray-700 transition-colors cursor-pointer"
                 aria-label="Cancel"
               >
                 <FiX className="w-5 h-5" />
               </button>
               <button
                 onClick={handleSave}
-                className="p-2 text-gray-900 hover:text-black transition-colors"
+                className="p-2 text-gray-900 hover:text-black transition-colors cursor-pointer"
                 aria-label="Save changes"
               >
                 <FiSave className="w-5 h-5" />
@@ -76,7 +76,7 @@ export default function ProfileSection({ user }: ProfileSectionProps) {
           ) : (
             <button
               onClick={() => setIsEditing(true)}
-              className="flex items-center space-x-1 text-sm text-gray-600 hover:text-black transition-colors"
+              className="flex items-center space-x-1 text-sm text-gray-600 hover:text-black transition-colors cursor-pointer"
               aria-label="Edit profile"
             >
               <FiEdit2 className="w-4 h-4" />
@@ -103,7 +103,7 @@ export default function ProfileSection({ user }: ProfileSectionProps) {
             </div>
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="absolute -bottom-2 -right-2 bg-white p-2 rounded-full shadow-md hover:bg-gray-50 transition-colors border border-gray-100"
+              className="absolute -bottom-2 -right-2 bg-white p-2 rounded-full shadow-md hover:bg-gray-50 transition-colors border border-gray-100 cursor-pointer"
               aria-label="Change profile picture"
             >
               <FiUpload className="w-4 h-4 text-gray-600" />
@@ -148,7 +148,7 @@ export default function ProfileSection({ user }: ProfileSectionProps) {
                 className="w-full px-4 py-2 text-gray-500 bg-gray-50 border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-black focus:border-transparent font-mono text-sm"
               />
             ) : (
-              <p className="text-gray-600 font-light text-sm py-1">{email}</p>
+              <p className="text-gray-900 font-light text-sm py-1">{email}</p>
             )}
           </div>
         </div>

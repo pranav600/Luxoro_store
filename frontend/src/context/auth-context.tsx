@@ -50,7 +50,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // If we get a 401, log the user out
       if (response.status === 401) {
         logout();
-        window.location.href = '/login';
         throw new Error('Session expired. Please log in again.');
       }
 
@@ -160,10 +159,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-    // Redirect to login page
-    if (typeof window !== 'undefined') {
-      window.location.href = '/login';
-    }
+    // Let the calling component handle navigation
   };
 
   // Mock signup

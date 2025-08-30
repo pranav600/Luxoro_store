@@ -78,7 +78,7 @@ mongoose
 // Import auth middleware
 import { verifyToken } from "./middleware/auth.js";
 
-// Public routes
+// Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
 

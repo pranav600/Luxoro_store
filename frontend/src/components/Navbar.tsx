@@ -55,13 +55,10 @@ export default function Navbar() {
       {/* Logo */}
       <div className="flex items-center space-x-2">
         <Link href="/">
-          <span className="text-black font-bold text-2xl sm:text-3xl tracking-tight cursor-pointer focus:outline-none">
+          <span className="text-black font-bold text-2xl font-mono sm:text-3xl tracking-tight cursor-pointer focus:outline-none">
             LUXORO
           </span>
         </Link>
-        <span className="ml-2 sm:ml-4 text-lg sm:text-xl text-black tracking-wide">
-          Online Store
-        </span>
       </div>
 
       {/* Hamburger for mobile */}

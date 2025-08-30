@@ -218,7 +218,7 @@ export default function CartPage() {
         {user ? (
           <button
             onClick={handleCheckout}
-            className="w-full bg-black text-white py-3 px-6 rounded-lg font-medium hover:bg-gray-900 transition-colors"
+            className="w-full bg-black text-white py-3 px-6 rounded-lg font-medium transition-colors cursor-pointer"
             disabled={cart.length === 0}
           >
             Proceed to Checkout
@@ -226,7 +226,7 @@ export default function CartPage() {
         ) : (
           <button
             onClick={handleCheckout}
-            className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+            className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white py-3 px-6 rounded-lg font-medium transition-colors cursor-pointer"
           >
             <FiLogIn className="text-lg" />
             Login to Checkout

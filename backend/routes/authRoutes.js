@@ -7,6 +7,7 @@ import User from "../models/user.js";
 dotenv.config();
 const router = express.Router();
 
+
 // 🔐 SIGNUP ROUTE
 router.post("/signup", async (req, res) => {
   try {
@@ -89,5 +90,7 @@ router.post("/login", async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
+
+
 
 export default router;
