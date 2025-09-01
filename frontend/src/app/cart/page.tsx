@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useCart } from "../../context/cart-context";
 import { useAuth } from "../../context/auth-context";
 import { FiShoppingCart, FiLogIn } from "react-icons/fi";
@@ -15,12 +15,31 @@ export default function CartPage() {
       router.push('/login?redirect=/cart');
       return;
     }
+    
+    // Save promo code data to localStorage for checkout
+    const promoData = {
+      appliedPromo,
+      discountPercentage,
+      discountAmount
+    };
+    localStorage.setItem(`checkout_promo_${user._id}`, JSON.stringify(promoData));
+    
     // Proceed to checkout
     router.push('/checkout');
   };
   const [promoCode, setPromoCode] = useState("");
   const [appliedPromo, setAppliedPromo] = useState("");
   const [promoError, setPromoError] = useState("");
+
+  // Load promo code from localStorage on component mount
+  useEffect(() => {
+    if (user?._id) {
+      const savedPromo = localStorage.getItem(`cart_promo_${user._id}`);
+      if (savedPromo) {
+        setAppliedPromo(savedPromo);
+      }
+    }
+  }, [user]);
   
   const totalAmount = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
   
@@ -42,6 +61,10 @@ export default function CartPage() {
     if (promoCode.toUpperCase() === "LUXORO10") {
       setAppliedPromo("LUXORO10");
       setPromoCode("");
+      // Save to localStorage for persistence
+      if (user?._id) {
+        localStorage.setItem(`cart_promo_${user._id}`, "LUXORO10");
+      }
     } else if (promoCode.trim() !== "") {
       setPromoError("Invalid promo code");
     }
@@ -51,6 +74,10 @@ export default function CartPage() {
   const removePromo = () => {
     setAppliedPromo("");
     setPromoError("");
+    // Remove from localStorage
+    if (user?._id) {
+      localStorage.removeItem(`cart_promo_${user._id}`);
+    }
   };
 
   return (
@@ -218,7 +245,7 @@ export default function CartPage() {
         {user ? (
           <button
             onClick={handleCheckout}
-            className="w-full bg-black text-white py-3 px-6 rounded-lg font-medium transition-colors cursor-pointer"
+            className="w-full bg-black text-white font-mono py-3 px-6 rounded-lg font-medium transition-colors cursor-pointer"
             disabled={cart.length === 0}
           >
             Proceed to Checkout
@@ -226,7 +253,7 @@ export default function CartPage() {
         ) : (
           <button
             onClick={handleCheckout}
-            className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white py-3 px-6 rounded-lg font-medium transition-colors cursor-pointer"
+            className="w-full flex items-center justify-center font-mono gap-2 bg-blue-600 text-white py-3 px-6 rounded-lg font-medium transition-colors cursor-pointer"
           >
             <FiLogIn className="text-lg" />
             Login to Checkout

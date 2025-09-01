@@ -287,7 +287,7 @@ export default function AddressesSection() {
               {/* Form */}
               <div className="space-y-4">
                 {/* Address Type Selector */}
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-3 gap-3 font-mono">
                   {[
                     { type: "home", label: "Home", icon: <FiHome /> },
                     { type: "work", label: "Work", icon: <FiBriefcase /> },
@@ -319,11 +319,11 @@ export default function AddressesSection() {
                   name="fullName"
                   value={formData.fullName}
                   onChange={handleInputChange}
-                  className="w-full border px-3 py-2 text-gray-700 rounded"
+                  className="w-full border px-3 py-2 font-mono text-gray-700 rounded"
                   placeholder="Full Name"
                 />
                 {formErrors.fullName && (
-                  <p className="text-sm text-red-600">{formErrors.fullName}</p>
+                  <p className="text-sm text-red-600 font-mono">{formErrors.fullName}</p>
                 )}
 
                 <input
@@ -331,7 +331,7 @@ export default function AddressesSection() {
                   name="phone"
                   value={formData.phone}
                   onChange={handleInputChange}
-                  className="w-full border px-3 py-2 text-gray-700 rounded"
+                  className="w-full border px-3 py-2 font-mono text-gray-700 rounded"
                   placeholder="Phone"
                 />
 
@@ -340,7 +340,7 @@ export default function AddressesSection() {
                   name="addressLine1"
                   value={formData.addressLine1}
                   onChange={handleInputChange}
-                  className="w-full border px-3 py-2 text-gray-700 rounded"
+                  className="w-full border px-3 py-2 font-mono text-gray-700 rounded"
                   placeholder="Address Line 1"
                 />
                 <input
@@ -348,17 +348,17 @@ export default function AddressesSection() {
                   name="addressLine2"
                   value={formData.addressLine2}
                   onChange={handleInputChange}
-                  className="w-full border px-3 py-2 text-gray-700 rounded"
+                  className="w-full border px-3 py-2 font-mono text-gray-700 rounded"
                   placeholder="Address Line 2 (Optional)"
                 />
 
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-3 gap-3 font-mono">
                   <input
                     type="text"
                     name="city"
                     value={formData.city}
                     onChange={handleInputChange}
-                    className="border px-3 py-2 text-gray-700 rounded"
+                    className="border px-3 py-2 font-mono text-gray-700 rounded"
                     placeholder="City"
                   />
                   <input
@@ -366,7 +366,7 @@ export default function AddressesSection() {
                     name="state"
                     value={formData.state}
                     onChange={handleInputChange}
-                    className="border px-3 py-2 text-gray-700 rounded"
+                    className="border px-3 py-2 font-mono text-gray-700 rounded"
                     placeholder="State"
                   />
                   <input
@@ -374,7 +374,7 @@ export default function AddressesSection() {
                     name="postalCode"
                     value={formData.postalCode}
                     onChange={handleInputChange}
-                    className="border px-3 py-2 text-gray-700 rounded"
+                    className="border px-3 py-2 font-mono text-gray-700 rounded"
                     placeholder="Postal Code"
                   />
                 </div>
@@ -388,7 +388,7 @@ export default function AddressesSection() {
                     onChange={handleInputChange}
                     className="mr-2"
                   />
-                  <label htmlFor="isDefault" className="text-gray-600">
+                  <label htmlFor="isDefault" className="text-gray-600 font-mono">
                     Set as default address
                   </label>
                 </div>
@@ -401,7 +401,7 @@ export default function AddressesSection() {
                     setIsAdding(false);
                     setEditingAddress(null);
                   }}
-                  className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 cursor-pointer"
+                  className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 cursor-pointer font-mono"
                 >
                   Cancel
                 </button>
@@ -409,7 +409,7 @@ export default function AddressesSection() {
                   onClick={
                     editingAddress ? handleUpdateAddress : handleAddAddress
                   }
-                  className="px-4 py-2 rounded-lg bg-black text-white cursor-pointer"
+                  className="px-4 py-2 rounded-lg font-mono bg-black text-white cursor-pointer"
                 >
                   {editingAddress ? "Update" : "Save"}
                 </button>
@@ -457,13 +457,13 @@ export default function AddressesSection() {
               <div className="flex justify-end gap-3">
                 <button
                   onClick={() => setAddressToDelete(null)}
-                  className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 cursor-pointer"
+                  className="px-4 py-2 rounded-lg font-mono border border-gray-300 text-gray-700 cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={() => handleDeleteAddress(addressToDelete.id)}
-                  className="px-4 py-2 rounded-lg bg-red-600 text-white cursor-pointer"
+                  className="px-4 py-2 rounded-lg font-mono bg-red-600 text-white cursor-pointer"
                 >
                   Delete
                 </button>
@@ -481,7 +481,7 @@ export default function AddressesSection() {
             resetForm();
             setIsAdding(true);
           }}
-          className="flex items-center px-4 py-2 bg-black text-white rounded-lg cursor-pointer"
+          className="flex items-center px-4 py-2 font-mono bg-black text-white rounded-lg cursor-pointer"
         >
           <FiPlus className="mr-2" /> Add New Address
         </button>
@@ -498,20 +498,20 @@ export default function AddressesSection() {
               }`}
             >
               {address.isDefault && (
-                <span className="absolute top-2 right-2 px-2 text-xs bg-black text-white rounded-full">
+                <span className="absolute top-2 right-2 px-2 text-xs font-mono bg-black text-white rounded-full">
                   Default
                 </span>
               )}
               <div className="flex items-start space-x-2 text-gray-600">
                 {getAddressIcon(address.type)}
                 <div>
-                  <p className="font-medium">{address.fullName}</p>
-                  <p>{address.addressLine1}</p>
-                  {address.addressLine2 && <p>{address.addressLine2}</p>}
-                  <p>
+                  <p className="font-medium font-mono">{address.fullName}</p>
+                  <p className="font-mono">{address.addressLine1}</p>
+                  {address.addressLine2 && <p className="font-mono">{address.addressLine2}</p>}
+                  <p className="font-mono">
                     {address.city}, {address.state} {address.postalCode}
                   </p>
-                  <p className="mt-2 flex items-center">
+                  <p className="mt-2 flex items-center font-mono">
                     <FiPhone className="w-4 h-4 mr-2" />
                     {address.phone}
                   </p>
