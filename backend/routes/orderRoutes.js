@@ -23,9 +23,9 @@ const authenticateToken = (req, res, next) => {
 };
 
 // Get all orders for the logged-in user
-router.get('/', authenticateToken, async (req, res) => {
+router.get('/', async (req, res) => {
   try {
-    const orders = await Order.find({ userId: req.user.userId })
+    const orders = await Order.find({ userId: req.user._id })
       .sort({ createdAt: -1 });
     res.status(200).json(orders);
   } catch (error) {
@@ -35,49 +35,85 @@ router.get('/', authenticateToken, async (req, res) => {
 });
 
 // Get order by ID
-router.get('/:id', authenticateToken, async (req, res) => {
+router.get('/:id', async (req, res) => {
   try {
     const order = await Order.findOne({
       _id: req.params.id,
-      userId: req.user.userId
-    });
+      userId: req.user._id
+    }).populate('userId', 'name email');
 
     if (!order) {
-      return res.status(404).json({ message: 'Order not found' });
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Order not found' 
+      });
     }
 
-    res.status(200).json(order);
+    res.status(200).json({
+      success: true,
+      order
+    });
   } catch (error) {
     console.error('Error fetching order:', error);
-    res.status(500).json({ message: 'Failed to fetch order' });
+    res.status(500).json({ 
+      success: false, 
+      message: 'Failed to fetch order',
+      error: error.message 
+    });
   }
 });
 
 // Create a new order
-router.post('/', authenticateToken, async (req, res) => {
+router.post('/', async (req, res) => {
   try {
-    const { items, total, shippingAddress, paymentMethod } = req.body;
+    const { 
+      items, 
+      total, 
+      subtotal, 
+      shippingAddress, 
+      paymentMethod, 
+      discount, 
+      shippingCost 
+    } = req.body;
+    
+    console.log('Creating order for user:', req.user._id);
+    console.log('Order data received:', req.body);
     
     const order = new Order({
-      userId: req.user.userId,
+      userId: req.user._id,
       items,
       total,
+      subtotal,
       shippingAddress,
       paymentMethod,
+      discount: discount || { amount: 0 },
+      shippingCost: shippingCost || 0,
       status: 'pending',
       paymentStatus: 'pending'
     });
 
     const savedOrder = await order.save();
-    res.status(201).json(savedOrder);
+    
+    // Populate user and product details
+    await savedOrder.populate('userId', 'name email');
+    
+    res.status(201).json({
+      success: true,
+      message: 'Order created successfully',
+      order: savedOrder
+    });
   } catch (error) {
     console.error('Error creating order:', error);
-    res.status(500).json({ message: 'Failed to create order' });
+    res.status(500).json({ 
+      success: false, 
+      message: 'Failed to create order',
+      error: error.message 
+    });
   }
 });
 
 // Update order status (for admin)
-router.patch('/:id/status', authenticateToken, async (req, res) => {
+router.patch('/:id/status', async (req, res) => {
   try {
     const { status } = req.body;
     

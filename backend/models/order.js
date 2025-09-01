@@ -40,8 +40,51 @@ const orderSchema = new mongoose.Schema(
       default: 'pending'
     },
     shippingAddress: {
-      type: String,
+      fullName: {
+        type: String,
+        required: true
+      },
+      phone: {
+        type: String,
+        required: true
+      },
+      addressLine1: {
+        type: String,
+        required: true
+      },
+      addressLine2: String,
+      city: {
+        type: String,
+        required: true
+      },
+      state: {
+        type: String,
+        required: true
+      },
+      postalCode: {
+        type: String,
+        required: true
+      },
+      type: {
+        type: String,
+        enum: ['home', 'work', 'other'],
+        default: 'home'
+      }
+    },
+    subtotal: {
+      type: Number,
       required: true
+    },
+    discount: {
+      amount: {
+        type: Number,
+        default: 0
+      },
+      promoCode: String
+    },
+    shippingCost: {
+      type: Number,
+      default: 0
     },
     paymentMethod: {
       type: String,
