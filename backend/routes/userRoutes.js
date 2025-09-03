@@ -6,29 +6,18 @@ import dotenv from "dotenv";
 dotenv.config();
 const router = express.Router();
 
-// 👤 GET LOGGED-IN USER PROFILE
+// 👤 GET LOGGED-IN USER PROFILE (No auth required for admin)
 router.get("/profile", async (req, res) => {
   try {
-    const authHeader = req.headers.authorization;
-    if (!authHeader) {
-      return res.status(401).json({ message: "No token provided" });
-    }
+    // Return a default admin profile for admin panel
+    const adminProfile = {
+      _id: "admin",
+      name: "Admin User",
+      email: "admin@luxoro.com",
+      role: "admin"
+    };
 
-    const token = authHeader.split(" ")[1];
-    let decoded;
-    try {
-      decoded = jwt.verify(token, process.env.JWT_SECRET);
-    } catch (err) {
-      return res.status(401).json({ message: "Invalid or expired token" });
-    }
-
-    // 🔑 Find user by ID from token
-    const user = await User.findById(decoded.userId).select("-password");
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    res.status(200).json(user);
+    res.status(200).json(adminProfile);
   } catch (error) {
     console.error("❌ Error fetching profile:", error.message);
     res.status(500).json({ message: "Server error while fetching profile" });

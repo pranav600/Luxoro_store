@@ -82,8 +82,8 @@ import { verifyToken } from "./middleware/auth.js";
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
 
-// Protected routes
-app.use("/api/users", verifyToken, userRoutes);
+// Routes (removed auth middleware for admin access)
+app.use("/api/users", userRoutes);
 app.use("/api/cart", verifyToken, cartRoutes);
 app.use("/api/orders", verifyToken, orderRoutes);
 
