@@ -36,12 +36,63 @@ export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState<ProfileTab>("profile");
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [showLogoutPopup, setShowLogoutPopup] = useState(false);
+  const [orders, setOrders] = useState([]);
+  const [ordersLoading, setOrdersLoading] = useState(false);
 
   useEffect(() => {
     if (!isLoading && !user && !isLoggingOut) {
       router.push("/login?redirect=/profile");
     }
   }, [user, router, isLoading, isLoggingOut]);
+
+  // Fetch user orders
+  useEffect(() => {
+    const fetchOrders = async () => {
+      if (!user) return;
+      
+      setOrdersLoading(true);
+      try {
+        const token = localStorage.getItem('token');
+        const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "https://luxoro-store-backend.onrender.com";
+        
+        const response = await fetch(`${apiBaseUrl}/api/orders`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (response.ok) {
+          const ordersData = await response.json();
+          console.log('Fetched orders:', ordersData);
+          
+          // Transform backend orders to match frontend interface
+          const transformedOrders = ordersData.map((order: any) => ({
+            id: order._id,
+            date: order.createdAt,
+            status: order.status === 'pending' ? 'processing' : order.status,
+            total: order.total,
+            items: order.items.map((item: any) => ({
+              id: item.productId,
+              name: item.name,
+              price: item.price,
+              quantity: item.quantity,
+              image: item.image
+            }))
+          }));
+          
+          setOrders(transformedOrders);
+        } else {
+          console.error('Failed to fetch orders:', response.statusText);
+        }
+      } catch (error) {
+        console.error('Error fetching orders:', error);
+      } finally {
+        setOrdersLoading(false);
+      }
+    };
+
+    fetchOrders();
+  }, [user]);
 
   if (isLoading) {
     return (
@@ -144,7 +195,7 @@ export default function ProfilePage() {
           {/* Tab Content */}
           <div className="p-6">
             {activeTab === "profile" && <ProfileSection user={user} />}
-            {activeTab === "orders" && <OrdersSection />}
+            {activeTab === "orders" && <OrdersSection orders={orders} />}
             {activeTab === "addresses" && <AddressesSection />}
           </div>
 

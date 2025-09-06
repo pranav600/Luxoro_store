@@ -68,28 +68,35 @@ export default function OrdersSection({ orders = [] }: OrdersSectionProps) {
 
   return (
     <div className="space-y-8">
-      <h2 className="text-xl font-semibold">My Orders</h2>
-      
+      <h2 className="text-xl text-gray-600 font-semibold">My Orders</h2>
+
       <div className="space-y-6">
         {orders.map((order) => (
-          <div key={order.id} className="border border-gray-200 rounded-lg overflow-hidden">
+          <div
+            key={order.id}
+            className="border border-gray-200 rounded-lg overflow-hidden"
+          >
             <div className="bg-gray-50 px-4 py-3 border-b border-gray-200 flex justify-between items-center">
               <div>
-                <span className="text-sm font-medium text-gray-500">Order #{order.id}</span>
-                <p className="text-xs text-gray-500">Placed on {formatDate(order.date)}</p>
+                <span className="text-sm font-medium text-gray-500">
+                  Order #{order.id}
+                </span>
+                <p className="text-xs text-gray-500">
+                  Placed on {formatDate(order.date)}
+                </p>
               </div>
               <div className="flex items-center space-x-2">
                 {getStatusIcon(order.status)}
-                <span className="text-sm font-medium">
+                <span className="text-sm text-gray-600 font-medium">
                   {getStatusText(order.status)}
                 </span>
               </div>
             </div>
-            
+
             <div className="divide-y divide-gray-200">
               {order.items.map((item) => (
                 <div key={item.id} className="p-4 flex">
-                  <div className="h-20 w-20 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
+                  <div className="h-20 w-14 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
                     <img
                       src={item.image}
                       alt={item.name}
@@ -99,24 +106,28 @@ export default function OrdersSection({ orders = [] }: OrdersSectionProps) {
                   <div className="ml-4 flex-1">
                     <div className="flex justify-between text-base font-medium text-gray-900">
                       <h3>{item.name}</h3>
-                      <p className="ml-4">${item.price.toFixed(2)}</p>
+                      <p className="ml-4">₹{item.price.toFixed(2)}</p>
                     </div>
-                    <p className="mt-1 text-sm text-gray-500">Qty: {item.quantity}</p>
+                    <p className="mt-1 text-sm text-gray-500">
+                      Qty: {item.quantity}
+                    </p>
                   </div>
                 </div>
               ))}
             </div>
-            
+
             <div className="bg-gray-50 px-4 py-3 border-t border-gray-200 flex justify-between items-center">
               <div className="flex items-center">
                 <FiCheck className="h-5 w-5 text-green-500 mr-2" />
-                <span className="text-sm font-medium">
-                  {order.status === 'delivered' 
-                    ? 'Delivered on ' + formatDate(order.date)
-                    : 'Order total'}
+                <span className="text-sm text-gray-600 font-medium">
+                  {order.status === "delivered"
+                    ? "Delivered on " + formatDate(order.date)
+                    : "Order total"}
                 </span>
               </div>
-              <p className="text-lg font-bold">${order.total.toFixed(2)}</p>
+              <p className="text-lg text-gray-600 font-bold">
+                ₹{order.total.toFixed(2)}
+              </p>
             </div>
           </div>
         ))}

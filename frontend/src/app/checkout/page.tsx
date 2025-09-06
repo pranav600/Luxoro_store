@@ -2,11 +2,9 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
 import {
   FiMapPin,
   FiPlus,
-  FiEdit2,
   FiHome,
   FiBriefcase,
   FiPhone,
@@ -17,6 +15,7 @@ import {
 import { useAuth } from "../../context/auth-context";
 import { useCart } from "../../context/cart-context";
 
+// 🟢 Address Type
 type AddressType = "home" | "work" | "other";
 
 interface Address {
@@ -32,75 +31,51 @@ interface Address {
   isDefault: boolean;
 }
 
-
 export default function CheckoutPage() {
   const { user } = useAuth();
   const { cart, clearCart } = useCart();
   const router = useRouter();
-  
+
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
-  const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
   const [promoData, setPromoData] = useState<any>(null);
+  const [orderPlaced, setOrderPlaced] = useState(false); // 🟢 NEW FLAG
 
-  // Get user-specific localStorage key
-  const getStorageKey = () => {
-    return user?._id ? `addresses_${user._id}` : 'addresses';
-  };
-
-  // Load addresses and promo data from localStorage
-  const loadAddresses = () => {
-    if (!user?._id) return;
-
-    try {
-      const storageKey = getStorageKey();
-      const storedAddresses = localStorage.getItem(storageKey);
-      if (storedAddresses) {
-        const addressList = JSON.parse(storedAddresses);
-        setAddresses(addressList);
-        // Auto-select default address
-        const defaultAddress = addressList.find((addr: Address) => addr.isDefault);
-        if (defaultAddress) {
-          setSelectedAddress(defaultAddress);
-        }
-      }
-
-      // Load promo data
-      const promoStorageKey = `checkout_promo_${user._id}`;
-      const storedPromoData = localStorage.getItem(promoStorageKey);
-      if (storedPromoData) {
-        setPromoData(JSON.parse(storedPromoData));
-      }
-    } catch (err) {
-      console.error('Error loading data:', err);
-    }
-  };
-
-  // Save addresses to localStorage
-  const saveAddresses = (addressList: Address[]) => {
-    try {
-      const storageKey = getStorageKey();
-      localStorage.setItem(storageKey, JSON.stringify(addressList));
-    } catch (err) {
-      console.error('Error saving addresses:', err);
-    }
-  };
-
+  // ✅ Fetch addresses from localStorage
   useEffect(() => {
     if (!user) {
-      router.push('/login?redirect=/checkout');
+      router.push("/login?redirect=/checkout");
       return;
     }
-    if (cart.length === 0) {
-      router.push('/cart');
+    if (cart.length === 0 && !orderPlaced) {
+      // 🟢 Only redirect if no order has been placed
+      router.push("/cart");
       return;
     }
-    loadAddresses();
-  }, [user, cart, router]);
 
+    try {
+      const storageKey = user?._id ? `addresses_${user._id}` : "addresses";
+      const storedAddresses = localStorage.getItem(storageKey);
 
-  // Place order
+      if (storedAddresses) {
+        const parsed = JSON.parse(storedAddresses);
+        setAddresses(parsed);
+
+        // Auto-select default
+        const defaultAddress = parsed.find((addr: Address) => addr.isDefault);
+        if (defaultAddress) setSelectedAddress(defaultAddress);
+      }
+
+      const promoKey = `checkout_promo_${user._id}`;
+      const storedPromo = localStorage.getItem(promoKey);
+      if (storedPromo) setPromoData(JSON.parse(storedPromo));
+    } catch (err) {
+      console.error("Error loading data:", err);
+    }
+  }, [user, cart, router, orderPlaced]); // 🟢 added orderPlaced
+
+  // 🟢 Place Order
   const handlePlaceOrder = async () => {
     if (!selectedAddress) {
       alert("Please select a delivery address");
@@ -110,51 +85,78 @@ export default function CheckoutPage() {
     setIsPlacingOrder(true);
 
     try {
-      // Calculate total with promo
-      const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+      const subtotal = cart.reduce(
+        (sum, item) => sum + item.price * item.quantity,
+        0
+      );
       const discountAmount = promoData ? promoData.discountAmount : 0;
       const shipping = subtotal >= 1000 ? 0 : 50;
       const total = subtotal - discountAmount + shipping;
 
-      // Create order object
-      const order = {
-        id: Date.now().toString(),
-        userId: user?._id,
-        items: cart,
-        address: selectedAddress,
+      const orderData = {
+        items: cart.map((item) => ({
+          productId: item.id,
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity,
+          image: item.image,
+        })),
+        shippingAddress: selectedAddress,
         paymentMethod: "COD",
-        total: total,
-        status: "pending",
-        createdAt: new Date().toISOString(),
+        subtotal,
+        discount: {
+          amount: discountAmount,
+          promoCode: promoData?.appliedPromo || null,
+        },
+        shippingCost: shipping,
+        total,
       };
 
-      // Save order to localStorage (you can replace this with API call later)
-      const existingOrders = JSON.parse(localStorage.getItem(`orders_${user?._id}`) || '[]');
-      existingOrders.push(order);
-      localStorage.setItem(`orders_${user?._id}`, JSON.stringify(existingOrders));
+      const token = localStorage.getItem("token");
+      const apiBaseUrl =
+        process.env.NEXT_PUBLIC_API_BASE_URL ||
+        "https://luxoro-store-backend.onrender.com";
 
-      // Clear cart and promo data
-      clearCart();
-      if (user?._id) {
-        localStorage.removeItem(`checkout_promo_${user._id}`);
-        localStorage.removeItem(`cart_promo_${user._id}`);
+      const response = await fetch(`${apiBaseUrl}/api/orders`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(orderData),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok || !result.success) {
+        throw new Error(result.message || "Failed to create order");
       }
 
-      // Show success animation
-      setShowSuccessAnimation(true);
-      
-      // Redirect to home page after animation
-      setTimeout(() => {
-        router.push('/');
-      }, 2500);
+      // ✅ Redirect to order-success
+      if (result.order && result.order._id) {
+        clearCart();
+        if (user?._id) {
+          localStorage.removeItem(`checkout_promo_${user._id}`);
+          localStorage.removeItem(`cart_promo_${user._id}`);
+        }
+        setOrderPlaced(true); // 🟢 Prevent redirect to /cart
+        router.push(`/order-success?orderId=${result.order._id}`);
+      } else {
+        throw new Error("Invalid response from server");
+      }
     } catch (error) {
-      console.error('Error placing order:', error);
-      alert('Failed to place order. Please try again.');
+      console.error("Error placing order:", error);
+      alert(
+        `Failed to place order: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
     } finally {
       setIsPlacingOrder(false);
     }
   };
 
+  // 🟢 Helpers
   const getAddressIcon = (type: AddressType) =>
     type === "home" ? (
       <FiHome className="w-5 h-5 text-gray-500" />
@@ -164,7 +166,10 @@ export default function CheckoutPage() {
       <FiMapPin className="w-5 h-5 text-gray-500" />
     );
 
-  const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const subtotal = cart.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
   const discountAmount = promoData ? promoData.discountAmount : 0;
   const shipping = subtotal >= 1000 ? 0 : 50;
   const finalTotal = subtotal - discountAmount + shipping;
@@ -172,18 +177,7 @@ export default function CheckoutPage() {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-gray-100 py-25">
-      {/* Success Animation Overlay */}
-      {showSuccessAnimation && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-8 text-center shadow-2xl transform animate-bounce">
-            <div className="text-6xl mb-4 animate-pulse">✅</div>
-            <h2 className="text-2xl font-bold font-mono text-gray-800 mb-2">Order Placed!</h2>
-            <p className="text-gray-600 font-mono">Redirecting to home page...</p>
-          </div>
-        </div>
-      )}
-      
+    <div className="min-h-screen bg-gray-100 py-12">
       <div className="max-w-6xl mx-auto px-4">
         {/* Header */}
         <div className="flex items-center mb-8">
@@ -197,9 +191,9 @@ export default function CheckoutPage() {
         </div>
 
         <div className="grid lg:grid-cols-3 gap-8">
-          {/* Left Column - Address & Payment */}
+          {/* Left Column */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Delivery Address Section */}
+            {/* Delivery Address */}
             <div className="bg-white rounded-lg shadow-sm p-6">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold font-mono text-gray-800 flex items-center">
@@ -215,7 +209,6 @@ export default function CheckoutPage() {
                 </button>
               </div>
 
-              {/* Address List */}
               {addresses.length === 0 ? (
                 <div className="text-center py-8 text-gray-500">
                   <FiMapPin className="w-12 h-12 mx-auto mb-4 text-gray-300" />
@@ -281,7 +274,7 @@ export default function CheckoutPage() {
               )}
             </div>
 
-            {/* Payment Method Section */}
+            {/* Payment Method */}
             <div className="bg-white rounded-lg shadow-sm p-6">
               <h2 className="text-lg font-semibold font-mono text-gray-800 flex items-center mb-4">
                 <FiCreditCard className="w-5 h-5 mr-2" />
@@ -298,18 +291,13 @@ export default function CheckoutPage() {
                       Pay when your order is delivered
                     </p>
                   </div>
-                  <input
-                    type="radio"
-                    checked={true}
-                    readOnly
-                    className="ml-auto"
-                  />
+                  <input type="radio" checked readOnly className="ml-auto" />
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Right Column - Order Summary */}
+          {/* Order Summary */}
           <div className="bg-white rounded-lg shadow-sm p-6 h-fit">
             <h2 className="text-lg font-semibold font-mono text-gray-800 mb-4">
               Order Summary
