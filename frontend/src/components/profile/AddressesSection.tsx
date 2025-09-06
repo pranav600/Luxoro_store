@@ -14,6 +14,44 @@ import {
 } from "react-icons/fi";
 import { useAuth } from "../../context/auth-context";
 
+// Skeleton Components
+const AddressSkeleton = () => (
+  <div className="relative p-4 border border-gray-200 rounded-lg animate-pulse">
+    <div className="absolute top-2 right-2 w-12 h-4 bg-gray-200 rounded-full"></div>
+    <div className="flex items-start space-x-2">
+      <div className="w-5 h-5 bg-gray-200 rounded mt-1"></div>
+      <div className="flex-1">
+        <div className="h-4 bg-gray-200 rounded w-32 mb-2"></div>
+        <div className="h-3 bg-gray-200 rounded w-48 mb-1"></div>
+        <div className="h-3 bg-gray-200 rounded w-40 mb-1"></div>
+        <div className="h-3 bg-gray-200 rounded w-36 mb-3"></div>
+        <div className="flex items-center">
+          <div className="w-4 h-4 bg-gray-200 rounded mr-2"></div>
+          <div className="h-3 bg-gray-200 rounded w-24"></div>
+        </div>
+      </div>
+    </div>
+    <div className="flex space-x-3 mt-3">
+      <div className="w-5 h-5 bg-gray-200 rounded"></div>
+      <div className="w-5 h-5 bg-gray-200 rounded"></div>
+    </div>
+  </div>
+);
+
+const AddressesSkeletonLoader = () => (
+  <div className="space-y-6">
+    <div className="flex justify-between items-center">
+      <div className="h-6 bg-gray-200 rounded w-32 animate-pulse"></div>
+      <div className="h-10 bg-gray-200 rounded w-40 animate-pulse"></div>
+    </div>
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {[...Array(6)].map((_, index) => (
+        <AddressSkeleton key={index} />
+      ))}
+    </div>
+  </div>
+);
+
 type AddressType = "home" | "work" | "other";
 
 interface Address {
@@ -244,6 +282,10 @@ export default function AddressesSection() {
     );
 
   // ------------------ Render ------------------
+  if (isLoading) {
+    return <AddressesSkeletonLoader />;
+  }
+
   return (
     <div className="space-y-6">
       {/* Add/Edit Address Modal */}

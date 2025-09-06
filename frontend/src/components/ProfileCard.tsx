@@ -65,12 +65,12 @@ export default function ProfileCard({ open, onClose }: ProfileCardProps) {
           style={{ top: topOffset }}
         >
           {/* Arrow */}
-          <div className="absolute -top-1.5 right-6 w-4 h-4 rotate-45 bg-white/30 backdrop-blur-xl border border-white/40 shadow-md z-[-1]" />
+          {/* <div className="absolute -top-1.5 right-6 w-4 h-4 py-2 rotate-45 bg-white/30 backdrop-blur-xl border border-white/40 shadow-md z-[-1]" /> */}
 
           {/* Main Card */}
           <div
             ref={cardRef}
-            className="rounded-3xl p-6 w-80 max-w-[90vw] border border-white/40 bg-white/30 backdrop-blur-xl shadow-2xl ring-1 ring-white/10"
+            className="rounded-3xl p-10 w-80 max-w-[90vw] border border-white/40 bg-white/30 backdrop-blur-xl shadow-2xl ring-1 ring-white/10"
           >
             {!user ? (
               <div className="flex flex-col items-center">
@@ -105,13 +105,6 @@ export default function ProfileCard({ open, onClose }: ProfileCardProps) {
                     alt="Profile"
                     className="w-20 h-20 rounded-full object-cover border-2 border-gray-300 shadow"
                   />
-                  <button
-                    className="absolute bottom-1 right-1 bg-white p-1 rounded-full shadow border"
-                    onClick={() => fileInputRef.current?.click()}
-                    title="Change profile picture"
-                  >
-                    <FiUpload className="text-black text-lg" />
-                  </button>
                   <input
                     ref={fileInputRef}
                     type="file"
@@ -123,7 +116,7 @@ export default function ProfileCard({ open, onClose }: ProfileCardProps) {
                 <div className="font-bold text-lg text-black">{user.name}</div>
                 <a
                   href="/profile"
-                  className="block w-full bg-black text-white text-center px-4 py-2 rounded-lg hover:bg-gray-900 transition-colors mt-2"
+                  className="block w-full bg-black text-white text-center px-4 py-2 rounded-lg mt-2"
                   onClick={onClose}
                 >
                   View Profile

@@ -4,15 +4,52 @@ import React, { useState, useRef } from 'react';
 import { FiEdit2, FiSave, FiX, FiUpload, FiUser } from 'react-icons/fi';
 import { useAuth } from '@/context/auth-context';
 
+// Skeleton Components
+const ProfileSkeleton = () => (
+  <div className="font-mono max-w-2xl mx-auto p-6">
+    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
+      {/* Header Skeleton */}
+      <div className="flex justify-between items-center mb-8">
+        <div className="h-8 bg-gray-200 rounded w-48 animate-pulse"></div>
+        <div className="h-6 bg-gray-200 rounded w-16 animate-pulse"></div>
+      </div>
+
+      {/* Profile Picture Skeleton */}
+      <div className="flex flex-col items-center mb-10">
+        <div className="relative group">
+          <div className="w-32 h-32 rounded-full bg-gray-200 animate-pulse"></div>
+          <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-gray-200 rounded-full animate-pulse"></div>
+        </div>
+      </div>
+
+      {/* Profile Form Skeleton */}
+      <div className="space-y-6">
+        <div className="space-y-1">
+          <div className="h-3 bg-gray-200 rounded w-20 mb-2 animate-pulse"></div>
+          <div className="h-6 bg-gray-200 rounded w-full animate-pulse"></div>
+        </div>
+        <div className="space-y-1">
+          <div className="h-3 bg-gray-200 rounded w-24 mb-2 animate-pulse"></div>
+          <div className="h-6 bg-gray-200 rounded w-full animate-pulse"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
 interface ProfileSectionProps {
   user: {
     name: string;
     email: string;
     image?: string;
   };
+  isLoading?: boolean;
 }
 
-export default function ProfileSection({ user }: ProfileSectionProps) {
+export default function ProfileSection({ user, isLoading = false }: ProfileSectionProps) {
+  if (isLoading) {
+    return <ProfileSkeleton />;
+  }
   const { updateProfile, updateProfileImage } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState(user.name);

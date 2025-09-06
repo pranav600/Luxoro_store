@@ -14,18 +14,86 @@ import {
 import dynamic from "next/dynamic";
 import { motion, AnimatePresence } from "framer-motion";
 
-// Dynamically import sections (no SSR)
+// Dynamically import sections with loading fallbacks
 const ProfileSection = dynamic(
   () => import("../../components/profile/ProfileSection"),
-  { ssr: false }
+  { 
+    ssr: false,
+    loading: () => (
+      <div className="font-mono max-w-2xl mx-auto p-6">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
+          <div className="flex justify-between items-center mb-8">
+            <div className="h-8 bg-gray-200 rounded w-48 animate-pulse"></div>
+            <div className="h-6 bg-gray-200 rounded w-16 animate-pulse"></div>
+          </div>
+          <div className="flex flex-col items-center mb-10">
+            <div className="w-32 h-32 rounded-full bg-gray-200 animate-pulse"></div>
+          </div>
+          <div className="space-y-6">
+            <div className="h-6 bg-gray-200 rounded w-full animate-pulse"></div>
+            <div className="h-6 bg-gray-200 rounded w-full animate-pulse"></div>
+          </div>
+        </div>
+      </div>
+    )
+  }
 );
 const OrdersSection = dynamic(
   () => import("../../components/profile/OrdersSection"),
-  { ssr: false }
+  { 
+    ssr: false,
+    loading: () => (
+      <div className="space-y-8">
+        <div className="h-6 bg-gray-200 rounded w-32 animate-pulse"></div>
+        <div className="space-y-6">
+          {[...Array(3)].map((_, index) => (
+            <div key={index} className="border border-gray-200 rounded-lg overflow-hidden animate-pulse">
+              <div className="bg-gray-50 px-4 py-3 border-b border-gray-200 flex justify-between items-center">
+                <div className="h-4 bg-gray-200 rounded w-24"></div>
+                <div className="h-4 bg-gray-200 rounded w-16"></div>
+              </div>
+              <div className="p-4 flex">
+                <div className="h-20 w-14 bg-gray-200 rounded-md"></div>
+                <div className="ml-4 flex-1">
+                  <div className="h-4 bg-gray-200 rounded w-32 mb-2"></div>
+                  <div className="h-3 bg-gray-200 rounded w-20"></div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
 );
 const AddressesSection = dynamic(
   () => import("../../components/profile/AddressesSection"),
-  { ssr: false }
+  { 
+    ssr: false,
+    loading: () => (
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <div className="h-6 bg-gray-200 rounded w-32 animate-pulse"></div>
+          <div className="h-10 bg-gray-200 rounded w-40 animate-pulse"></div>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {[...Array(6)].map((_, index) => (
+            <div key={index} className="relative p-4 border border-gray-200 rounded-lg animate-pulse">
+              <div className="absolute top-2 right-2 w-12 h-4 bg-gray-200 rounded-full"></div>
+              <div className="flex items-start space-x-2">
+                <div className="w-5 h-5 bg-gray-200 rounded mt-1"></div>
+                <div className="flex-1">
+                  <div className="h-4 bg-gray-200 rounded w-32 mb-2"></div>
+                  <div className="h-3 bg-gray-200 rounded w-48 mb-1"></div>
+                  <div className="h-3 bg-gray-200 rounded w-40"></div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
 );
 
 type ProfileTab = "profile" | "orders" | "addresses";
@@ -99,7 +167,7 @@ export default function ProfilePage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
-          <p className="font-mono">Loading your profile...</p>
+          <p className="font-mono text-gray-600">Loading your profile...</p>
         </div>
       </div>
     );
@@ -194,8 +262,8 @@ export default function ProfilePage() {
 
           {/* Tab Content */}
           <div className="p-6">
-            {activeTab === "profile" && <ProfileSection user={user} />}
-            {activeTab === "orders" && <OrdersSection orders={orders} />}
+            {activeTab === "profile" && <ProfileSection user={user} isLoading={false} />}
+            {activeTab === "orders" && <OrdersSection orders={orders} isLoading={ordersLoading} />}
             {activeTab === "addresses" && <AddressesSection />}
           </div>
 

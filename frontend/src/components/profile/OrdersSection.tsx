@@ -3,6 +3,56 @@
 import { useState } from 'react';
 import { FiPackage, FiClock, FiCheckCircle, FiTruck, FiCheck } from 'react-icons/fi';
 
+// Skeleton Components
+const OrderSkeleton = () => (
+  <div className="border border-gray-200 rounded-lg overflow-hidden animate-pulse">
+    <div className="bg-gray-50 px-4 py-3 border-b border-gray-200 flex justify-between items-center">
+      <div>
+        <div className="h-4 bg-gray-200 rounded w-24 mb-1"></div>
+        <div className="h-3 bg-gray-200 rounded w-32"></div>
+      </div>
+      <div className="flex items-center space-x-2">
+        <div className="w-4 h-4 bg-gray-200 rounded"></div>
+        <div className="h-4 bg-gray-200 rounded w-16"></div>
+      </div>
+    </div>
+    
+    <div className="divide-y divide-gray-200">
+      {[...Array(2)].map((_, index) => (
+        <div key={index} className="p-4 flex">
+          <div className="h-20 w-14 bg-gray-200 rounded-md"></div>
+          <div className="ml-4 flex-1">
+            <div className="flex justify-between">
+              <div className="h-4 bg-gray-200 rounded w-32 mb-2"></div>
+              <div className="h-4 bg-gray-200 rounded w-16"></div>
+            </div>
+            <div className="h-3 bg-gray-200 rounded w-20"></div>
+          </div>
+        </div>
+      ))}
+    </div>
+    
+    <div className="bg-gray-50 px-4 py-3 border-t border-gray-200 flex justify-between items-center">
+      <div className="flex items-center">
+        <div className="w-5 h-5 bg-gray-200 rounded mr-2"></div>
+        <div className="h-4 bg-gray-200 rounded w-24"></div>
+      </div>
+      <div className="h-5 bg-gray-200 rounded w-20"></div>
+    </div>
+  </div>
+);
+
+const OrdersSkeletonLoader = () => (
+  <div className="space-y-8">
+    <div className="h-6 bg-gray-200 rounded w-32 animate-pulse"></div>
+    <div className="space-y-6">
+      {[...Array(3)].map((_, index) => (
+        <OrderSkeleton key={index} />
+      ))}
+    </div>
+  </div>
+);
+
 interface Order {
   id: string;
   date: string;
@@ -18,10 +68,15 @@ interface Order {
 }
 
 interface OrdersSectionProps {
-  orders?: Order[]; // Make orders prop optional
+  orders?: Order[];
+  isLoading?: boolean;
 }
 
-export default function OrdersSection({ orders = [] }: OrdersSectionProps) {
+export default function OrdersSection({ orders = [], isLoading = false }: OrdersSectionProps) {
+
+  if (isLoading) {
+    return <OrdersSkeletonLoader />;
+  }
 
   const getStatusIcon = (status: string) => {
     switch (status) {
