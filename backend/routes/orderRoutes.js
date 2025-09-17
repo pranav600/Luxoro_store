@@ -1,86 +1,82 @@
+// 
+
 import express from "express";
 import Order from "../models/order.js";
-import jwt from "jsonwebtoken";
 
 export const router = express.Router();
 
-// Middleware to verify JWT token
-const authenticateToken = (req, res, next) => {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
-
-  if (!token) {
-    return res.status(401).json({ message: 'Access token required' });
-  }
-
-  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-    if (err) {
-      return res.status(403).json({ message: 'Invalid or expired token' });
-    }
-    req.user = user;
-    next();
-  });
-};
-
-// Get all orders for the logged-in user
-router.get('/', async (req, res) => {
+// ============================
+// Get all orders (Admin)
+// ============================
+router.get("/all", async (req, res) => {
   try {
-    const orders = await Order.find({ userId: req.user._id })
+    const orders = await Order.find({})
+      .populate("userId", "name email")
       .sort({ createdAt: -1 });
-    res.status(200).json(orders);
+
+    res.status(200).json({
+      success: true,
+      orders,
+    });
   } catch (error) {
-    console.error('Error fetching orders:', error);
-    res.status(500).json({ message: 'Failed to fetch orders' });
+    console.error("Error fetching all orders:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch orders",
+      error: error.message,
+    });
   }
 });
 
+// ============================
 // Get order by ID
-router.get('/:id', async (req, res) => {
+// ============================
+router.get("/:id", async (req, res) => {
   try {
-    const order = await Order.findOne({
-      _id: req.params.id,
-      userId: req.user._id
-    }).populate('userId', 'name email');
+    const order = await Order.findById(req.params.id).populate(
+      "userId",
+      "name email"
+    );
 
     if (!order) {
-      return res.status(404).json({ 
-        success: false, 
-        message: 'Order not found' 
+      return res.status(404).json({
+        success: false,
+        message: "Order not found",
       });
     }
 
     res.status(200).json({
       success: true,
-      order
+      order,
     });
   } catch (error) {
-    console.error('Error fetching order:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Failed to fetch order',
-      error: error.message 
+    console.error("Error fetching order:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch order",
+      error: error.message,
     });
   }
 });
 
+// ============================
 // Create a new order
-router.post('/', async (req, res) => {
+// ============================
+router.post("/", async (req, res) => {
   try {
-    const { 
-      items, 
-      total, 
-      subtotal, 
-      shippingAddress, 
-      paymentMethod, 
-      discount, 
-      shippingCost 
+    const {
+      items,
+      total,
+      subtotal,
+      shippingAddress,
+      paymentMethod,
+      discount,
+      shippingCost,
+      userId, // now passed directly from frontend
     } = req.body;
-    
-    console.log('Creating order for user:', req.user._id);
-    console.log('Order data received:', req.body);
-    
+
     const order = new Order({
-      userId: req.user._id,
+      userId,
       items,
       total,
       subtotal,
@@ -88,79 +84,59 @@ router.post('/', async (req, res) => {
       paymentMethod,
       discount: discount || { amount: 0 },
       shippingCost: shippingCost || 0,
-      status: 'pending',
-      paymentStatus: 'pending'
+      status: "pending",
+      paymentStatus: "pending",
     });
 
     const savedOrder = await order.save();
-    
-    // Populate user and product details
-    await savedOrder.populate('userId', 'name email');
-    
+
+    await savedOrder.populate("userId", "name email");
+
     res.status(201).json({
       success: true,
-      message: 'Order created successfully',
-      order: savedOrder
+      message: "Order created successfully",
+      order: savedOrder,
     });
   } catch (error) {
-    console.error('Error creating order:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Failed to create order',
-      error: error.message 
+    console.error("Error creating order:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to create order",
+      error: error.message,
     });
   }
 });
 
-// Get all orders (for admin)
-router.get('/all', async (req, res) => {
-  try {
-    const orders = await Order.find({})
-      .populate('userId', 'name email')
-      .sort({ createdAt: -1 });
-    
-    res.status(200).json({
-      success: true,
-      orders
-    });
-  } catch (error) {
-    console.error('Error fetching all orders:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Failed to fetch orders',
-      error: error.message 
-    });
-  }
-});
-
-// Update order status (for admin)
-router.patch('/:id/status', async (req, res) => {
+// ============================
+// Update order status (Admin)
+// ============================
+router.patch("/:id/status", async (req, res) => {
   try {
     const { status } = req.body;
-    
-    const order = await Order.findOneAndUpdate(
-      { _id: req.params.id },
+
+    const order = await Order.findByIdAndUpdate(
+      req.params.id,
       { status },
       { new: true }
-    ).populate('userId', 'name email');
+    ).populate("userId", "name email");
 
     if (!order) {
-      return res.status(404).json({ 
-        success: false, 
-        message: 'Order not found' 
+      return res.status(404).json({
+        success: false,
+        message: "Order not found",
       });
     }
 
     res.status(200).json({
       success: true,
-      order
+      order,
     });
   } catch (error) {
-    console.error('Error updating order status:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Failed to update order status',
-      error: error.message 
+    console.error("Error updating order status:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to update order status",
+      error: error.message,
     });
   }
 });
