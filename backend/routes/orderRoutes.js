@@ -2,13 +2,14 @@
 
 import express from "express";
 import Order from "../models/order.js";
+import { requireAdmin } from "../middleware/auth.js";
 
 export const router = express.Router();
 
 // ============================
 // Get all orders (Admin)
 // ============================
-router.get("/all", async (req, res) => {
+router.get("/all", requireAdmin, async (req, res) => {
   try {
     const orders = await Order.find({})
       .populate("userId", "name email")
@@ -23,6 +24,31 @@ router.get("/all", async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Failed to fetch orders",
+      error: error.message,
+    });
+  }
+});
+
+// ============================
+// Get orders by User (Admin)
+// NOTE: Place BEFORE '/:id' to avoid route conflicts
+// ============================
+router.get("/user/:userId", requireAdmin, async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const orders = await Order.find({ userId })
+      .populate("userId", "name email")
+      .sort({ createdAt: -1 });
+
+    return res.status(200).json({
+      success: true,
+      orders,
+    });
+  } catch (error) {
+    console.error("Error fetching user orders:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch user orders",
       error: error.message,
     });
   }
@@ -110,7 +136,7 @@ router.post("/", async (req, res) => {
 // ============================
 // Update order status (Admin)
 // ============================
-router.patch("/:id/status", async (req, res) => {
+router.patch("/:id/status", requireAdmin, async (req, res) => {
   try {
     const { status } = req.body;
 
