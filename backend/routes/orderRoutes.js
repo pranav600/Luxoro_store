@@ -2,14 +2,13 @@
 
 import express from "express";
 import Order from "../models/order.js";
-import { requireAdmin } from "../middleware/auth.js";
 
 export const router = express.Router();
 
 // ============================
 // Get all orders (Admin)
 // ============================
-router.get("/all", requireAdmin, async (req, res) => {
+router.get("/all", async (req, res) => {
   try {
     const orders = await Order.find({})
       .populate("userId", "name email")
@@ -33,7 +32,7 @@ router.get("/all", requireAdmin, async (req, res) => {
 // Get orders by User (Admin)
 // NOTE: Place BEFORE '/:id' to avoid route conflicts
 // ============================
-router.get("/user/:userId", requireAdmin, async (req, res) => {
+router.get("/user/:userId", async (req, res) => {
   try {
     const { userId } = req.params;
     const orders = await Order.find({ userId })
@@ -136,7 +135,7 @@ router.post("/", async (req, res) => {
 // ============================
 // Update order status (Admin)
 // ============================
-router.patch("/:id/status", requireAdmin, async (req, res) => {
+router.patch("/:id/status", async (req, res) => {
   try {
     const { status } = req.body;
 
