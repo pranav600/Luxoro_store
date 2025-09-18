@@ -85,7 +85,7 @@ app.use("/api/products", productRoutes);
 // Routes (removed auth middleware for admin access)
 app.use("/api/users", userRoutes);
 app.use("/api/cart", verifyToken, cartRoutes);
-app.use("/api/orders", verifyToken, orderRoutes);
+app.use("/api/orders", orderRoutes);
 
 // Health check
 app.get("/", (req, res) => res.send("🟢 Luxoro API is running"));
