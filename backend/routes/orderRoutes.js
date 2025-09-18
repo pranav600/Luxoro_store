@@ -98,11 +98,27 @@ router.post("/", async (req, res) => {
       paymentMethod,
       discount,
       shippingCost,
-      userId, // now passed directly from frontend
     } = req.body;
 
+    // Prefer authenticated user from token (server mounts verifyToken for /api/orders)
+    const authUserId = req.user?._id;
+    if (!authUserId) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized: missing authenticated user",
+      });
+    }
+
+    // Basic validation
+    if (!Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({ success: false, message: "Items are required" });
+    }
+    if (!total || !subtotal || !paymentMethod || !shippingAddress) {
+      return res.status(400).json({ success: false, message: "Missing required fields" });
+    }
+
     const order = new Order({
-      userId,
+      userId: authUserId,
       items,
       total,
       subtotal,
