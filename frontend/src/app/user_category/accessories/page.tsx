@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import ProductCard from "@/components/ProductCard";
+import LXLoader from "@/components/LXLoader";
 
 interface Product {
   _id: string;
@@ -18,9 +19,9 @@ export default function AccessoriesPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [selectedAccessoriesType, setSelectedAccessoriesType] = useState<string | null>(
-    null
-  );
+  const [selectedAccessoriesType, setSelectedAccessoriesType] = useState<
+    string | null
+  >(null);
   const [selectedGender, setSelectedGender] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<string>("");
 
@@ -224,7 +225,9 @@ export default function AccessoriesPage() {
 
           {/* Products */}
           {loading ? (
-            <p className="text-gray-500">Loading products...</p>
+            <div className="flex items-center justify-center py-20">
+              <LXLoader size={72} />
+            </div>
           ) : error ? (
             <p className="text-red-600">{error}</p>
           ) : sortedProducts.length === 0 ? (

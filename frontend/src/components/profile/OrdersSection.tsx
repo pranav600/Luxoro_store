@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { FiPackage, FiClock, FiCheckCircle, FiTruck, FiCheck } from 'react-icons/fi';
+import { FiPackage, FiClock, FiCheckCircle, FiTruck, FiCheck, FiX, FiAlertCircle } from 'react-icons/fi';
 
 // Skeleton Components
 const OrderSkeleton = () => (
@@ -54,17 +54,25 @@ const OrdersSkeletonLoader = () => (
 );
 
 interface Order {
-  id: string;
-  date: string;
-  status: 'processing' | 'shipped' | 'delivered';
+  _id: string;
+  createdAt: string;
+  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
   total: number;
   items: Array<{
-    id: string;
+    productId: string;
     name: string;
     price: number;
     quantity: number;
     image: string;
   }>;
+  shippingAddress: {
+    street: string;
+    city: string;
+    state: string;
+    zipCode: string;
+    country: string;
+  };
+  paymentMethod: string;
 }
 
 interface OrdersSectionProps {
@@ -80,12 +88,16 @@ export default function OrdersSection({ orders = [], isLoading = false }: Orders
 
   const getStatusIcon = (status: string) => {
     switch (status) {
+      case 'pending':
+        return <FiAlertCircle className="text-orange-500" />;
       case 'processing':
         return <FiClock className="text-yellow-500" />;
       case 'shipped':
         return <FiTruck className="text-blue-500" />;
       case 'delivered':
         return <FiCheckCircle className="text-green-500" />;
+      case 'cancelled':
+        return <FiX className="text-red-500" />;
       default:
         return <FiPackage className="text-gray-500" />;
     }
@@ -123,34 +135,34 @@ export default function OrdersSection({ orders = [], isLoading = false }: Orders
 
   return (
     <div className="space-y-8">
-      <h2 className="text-xl text-gray-600 font-semibold">My Orders</h2>
+      <h2 className="text-xl text-gray-600 font-mono font-semibold">My Orders</h2>
 
       <div className="space-y-6">
         {orders.map((order) => (
           <div
-            key={order.id}
+            key={order._id}
             className="border border-gray-200 rounded-lg overflow-hidden"
           >
             <div className="bg-gray-50 px-4 py-3 border-b border-gray-200 flex justify-between items-center">
               <div>
-                <span className="text-sm font-medium text-gray-500">
-                  Order #{order.id}
+                <span className="text-sm font-medium text-gray-500 font-mono">
+                  Order #{order._id.slice(-8)}
                 </span>
-                <p className="text-xs text-gray-500">
-                  Placed on {formatDate(order.date)}
+                <p className="text-xs text-gray-500 font-mono">
+                  Placed on {formatDate(order.createdAt)}
                 </p>
               </div>
               <div className="flex items-center space-x-2">
                 {getStatusIcon(order.status)}
-                <span className="text-sm text-gray-600 font-medium">
+                <span className="text-sm text-gray-600 font-medium font-mono">
                   {getStatusText(order.status)}
                 </span>
               </div>
             </div>
 
             <div className="divide-y divide-gray-200">
-              {order.items.map((item) => (
-                <div key={item.id} className="p-4 flex">
+              {order.items.map((item, index) => (
+                <div key={item.productId || index} className="p-4 flex">
                   <div className="h-20 w-14 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
                     <img
                       src={item.image}
@@ -160,10 +172,10 @@ export default function OrdersSection({ orders = [], isLoading = false }: Orders
                   </div>
                   <div className="ml-4 flex-1">
                     <div className="flex justify-between text-base font-medium text-gray-900">
-                      <h3>{item.name}</h3>
-                      <p className="ml-4">₹{item.price.toFixed(2)}</p>
+                      <h3 className="font-mono">{item.name}</h3>
+                      <p className="ml-4 font-mono">₹{item.price.toFixed(2)}</p>
                     </div>
-                    <p className="mt-1 text-sm text-gray-500">
+                    <p className="mt-1 text-sm text-gray-500 font-mono">
                       Qty: {item.quantity}
                     </p>
                   </div>
@@ -174,13 +186,13 @@ export default function OrdersSection({ orders = [], isLoading = false }: Orders
             <div className="bg-gray-50 px-4 py-3 border-t border-gray-200 flex justify-between items-center">
               <div className="flex items-center">
                 <FiCheck className="h-5 w-5 text-green-500 mr-2" />
-                <span className="text-sm text-gray-600 font-medium">
+                <span className="text-sm text-gray-600 font-medium font-mono">
                   {order.status === "delivered"
-                    ? "Delivered on " + formatDate(order.date)
+                    ? "Delivered on " + formatDate(order.createdAt)
                     : "Order total"}
                 </span>
               </div>
-              <p className="text-lg text-gray-600 font-bold">
+              <p className="text-lg text-gray-600 font-bold font-mono">
                 ₹{order.total.toFixed(2)}
               </p>
             </div>

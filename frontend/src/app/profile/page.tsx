@@ -133,22 +133,8 @@ export default function ProfilePage() {
           const ordersData = await response.json();
           console.log('Fetched orders:', ordersData);
           
-          // Transform backend orders to match frontend interface
-          const transformedOrders = ordersData.map((order: any) => ({
-            id: order._id,
-            date: order.createdAt,
-            status: order.status === 'pending' ? 'processing' : order.status,
-            total: order.total,
-            items: order.items.map((item: any) => ({
-              id: item.productId,
-              name: item.name,
-              price: item.price,
-              quantity: item.quantity,
-              image: item.image
-            }))
-          }));
-          
-          setOrders(transformedOrders);
+          // Pass orders data directly to match the updated OrdersSection interface
+          setOrders(ordersData);
         } else {
           console.error('Failed to fetch orders:', response.statusText);
         }
@@ -188,7 +174,7 @@ export default function ProfilePage() {
       <div className="max-w-4xl mx-auto">
         <button
           onClick={() => router.back()}
-          className="flex items-center text-gray-600 hover:text-gray-900 mb-6 cursor-pointer"
+          className="flex items-center font-mono text-gray-600 hover:text-gray-900 mb-6 cursor-pointer"
         >
           <FiArrowLeft className="mr-2" /> Back to Home
         </button>

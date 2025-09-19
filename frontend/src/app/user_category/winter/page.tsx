@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import ProductCard from "@/components/ProductCard";
+import LXLoader from "@/components/LXLoader";
 
 interface Product {
   _id: string;
@@ -235,7 +236,9 @@ export default function WinterPage() {
             </select>
           </div>
           {loading ? (
-            <p>Loading...</p>
+            <div className="flex items-center justify-center py-20">
+              <LXLoader size={72} />
+            </div>
           ) : error ? (
             <p className="text-red-600">{error}</p>
           ) : sortedProducts.length === 0 ? (

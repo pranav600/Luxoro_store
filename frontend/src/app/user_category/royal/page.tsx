@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import ProductCard from "@/components/ProductCard";
+import LXLoader from "@/components/LXLoader";
 
 interface Product {
   _id: string;
@@ -28,50 +29,52 @@ export default function RoyalPage() {
   const genderOptions = ["male", "female"];
 
   /** -------------------- Fetch Products -------------------- */
- useEffect(() => {
-   async function fetchProducts() {
-     setLoading(true);
-     setError("");
-     try {
-       const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://luxoro-store-backend.onrender.com';
-       let url = `${baseURL}/api/products?category=royal`;
-       if (selectedRoyalType) {
-         url += `&royalType=${selectedRoyalType}`;
-       }
-       if (selectedGender) {
-         url += `&gender=${selectedGender}`;
-       }
+  useEffect(() => {
+    async function fetchProducts() {
+      setLoading(true);
+      setError("");
+      try {
+        const baseURL =
+          process.env.NEXT_PUBLIC_API_BASE_URL ||
+          "https://luxoro-store-backend.onrender.com";
+        let url = `${baseURL}/api/products?category=royal`;
+        if (selectedRoyalType) {
+          url += `&royalType=${selectedRoyalType}`;
+        }
+        if (selectedGender) {
+          url += `&gender=${selectedGender}`;
+        }
 
-       // ✅ Attach token
-       const token =
-         typeof window !== "undefined" ? localStorage.getItem("token") : null;
+        // ✅ Attach token
+        const token =
+          typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
-       const headers: HeadersInit = {
-         "Content-Type": "application/json",
-       };
-       if (token) {
-         headers["Authorization"] = `Bearer ${token}`;
-       }
+        const headers: HeadersInit = {
+          "Content-Type": "application/json",
+        };
+        if (token) {
+          headers["Authorization"] = `Bearer ${token}`;
+        }
 
-       const res = await fetch(url, { headers });
+        const res = await fetch(url, { headers });
 
-       if (!res.ok) {
-         const errorText = await res.text();
-         console.error("API Error:", res.status, errorText);
-         throw new Error(`Failed to fetch products: ${res.statusText}`);
-       }
+        if (!res.ok) {
+          const errorText = await res.text();
+          console.error("API Error:", res.status, errorText);
+          throw new Error(`Failed to fetch products: ${res.statusText}`);
+        }
 
-       const data = await res.json();
-       setProducts(data || []);
-     } catch (err: any) {
-       setError(err.message || "Error fetching products");
-     } finally {
-       setLoading(false);
-     }
-   }
+        const data = await res.json();
+        setProducts(data || []);
+      } catch (err: any) {
+        setError(err.message || "Error fetching products");
+      } finally {
+        setLoading(false);
+      }
+    }
 
-   fetchProducts();
- }, [selectedGender, selectedRoyalType]);
+    fetchProducts();
+  }, [selectedGender, selectedRoyalType]);
 
   /** -------------------- Filter & Sort -------------------- */
   const filteredProducts = products.filter((p) => {
@@ -212,7 +215,9 @@ export default function RoyalPage() {
 
           {/* Products */}
           {loading ? (
-            <p className="text-gray-500">Loading products...</p>
+            <div className="flex items-center justify-center py-20">
+              <LXLoader size={72} />
+            </div>
           ) : error ? (
             <p className="text-red-600">{error}</p>
           ) : sortedProducts.length === 0 ? (
