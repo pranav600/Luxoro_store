@@ -30,6 +30,35 @@ router.get("/all", requireAdmin, async (req, res) => {
 });
 
 // ============================
+// Get current user's orders
+// Requires auth middleware to set req.user (mounted at app.use('/api/orders', verifyToken, router))
+// ============================
+router.get("/", async (req, res) => {
+  try {
+    const userId = req.user?._id;
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized: missing authenticated user",
+      });
+    }
+
+    const orders = await Order.find({ userId }).sort({ createdAt: -1 });
+
+    // Returning plain array keeps compatibility with existing frontend usage
+    // while still including a success flag for consumers that expect it.
+    return res.status(200).json(orders);
+  } catch (error) {
+    console.error("Error fetching user's orders:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch user's orders",
+      error: error.message,
+    });
+  }
+});
+
+// ============================
 // Get orders by User (Admin)
 // NOTE: Place BEFORE '/:id' to avoid route conflicts
 // ============================
