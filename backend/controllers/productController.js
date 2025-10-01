@@ -80,40 +80,6 @@ function getModelByCategory(category) {
 }
 
 // 📦 GET all or by category
-// export const getProducts = async (req, res) => {
-//   try {
-//     const { category } = req.query;
-//     const Model = getModelByCategory(category);
-//     if (!Model) {
-//       return res.status(400).json({ error: "Invalid or missing category" });
-//     }
-//     let filter = {};
-//     if (category) filter.category = category;
-//     if (req.query.gender) filter.gender = req.query.gender;
-//     if (req.query.summerType) filter.summerType = req.query.summerType;
-//     if (req.query.summerStyle) filter.summerStyle = req.query.summerStyle;
-//     if (req.query.accessoriesType) filter.accessoriesType = req.query.accessoriesType;
-//     if (req.query.royalType) filter.royalType = req.query.royalType;
-//     if (req.query.winterType) filter.winterType = req.query.winterType;
-//     if (req.query.winterStyle) filter.winterStyle = req.query.winterStyle;
-//     let products = await Model.find(filter);
-//     // Join arrays for easier frontend handling
-//     products = products.map((p) => {
-//       const obj = p.toObject();
-//       if (Array.isArray(obj.accessoriesType)) obj.accessoriesType = obj.accessoriesType.join(", ");
-//       if (Array.isArray(obj.summerType)) obj.summerType = obj.summerType.join(", ");
-//       if (Array.isArray(obj.summerStyle)) obj.summerStyle = obj.summerStyle.join(", ");
-//       if (Array.isArray(obj.royalType)) obj.royalType = obj.royalType.join(", ");
-//       if (Array.isArray(obj.winterType)) obj.winterType = obj.winterType.join(", ");
-//       if (Array.isArray(obj.winterStyle)) obj.winterStyle = obj.winterStyle.join(", ");
-//       return obj;
-//     });
-//     res.json(products);
-//   } catch (err) {
-//     res.status(500).json({ error: "Failed to fetch products" });
-//   }
-// };
-
 export const getProducts = async (req, res) => {
   try {
     const { category } = req.query;
@@ -121,41 +87,29 @@ export const getProducts = async (req, res) => {
     if (!Model) {
       return res.status(400).json({ error: "Invalid or missing category" });
     }
-
-    // Only filter with actual fields (not "category")
     let filter = {};
+    if (category) filter.category = category;
     if (req.query.gender) filter.gender = req.query.gender;
     if (req.query.summerType) filter.summerType = req.query.summerType;
     if (req.query.summerStyle) filter.summerStyle = req.query.summerStyle;
-    if (req.query.accessoriesType)
-      filter.accessoriesType = req.query.accessoriesType;
+    if (req.query.accessoriesType) filter.accessoriesType = req.query.accessoriesType;
     if (req.query.royalType) filter.royalType = req.query.royalType;
     if (req.query.winterType) filter.winterType = req.query.winterType;
     if (req.query.winterStyle) filter.winterStyle = req.query.winterStyle;
-
     let products = await Model.find(filter);
-
-    // Convert arrays to comma-separated strings
+    // Join arrays for easier frontend handling
     products = products.map((p) => {
       const obj = p.toObject();
-      if (Array.isArray(obj.accessoriesType))
-        obj.accessoriesType = obj.accessoriesType.join(", ");
-      if (Array.isArray(obj.summerType))
-        obj.summerType = obj.summerType.join(", ");
-      if (Array.isArray(obj.summerStyle))
-        obj.summerStyle = obj.summerStyle.join(", ");
-      if (Array.isArray(obj.royalType))
-        obj.royalType = obj.royalType.join(", ");
-      if (Array.isArray(obj.winterType))
-        obj.winterType = obj.winterType.join(", ");
-      if (Array.isArray(obj.winterStyle))
-        obj.winterStyle = obj.winterStyle.join(", ");
+      if (Array.isArray(obj.accessoriesType)) obj.accessoriesType = obj.accessoriesType.join(", ");
+      if (Array.isArray(obj.summerType)) obj.summerType = obj.summerType.join(", ");
+      if (Array.isArray(obj.summerStyle)) obj.summerStyle = obj.summerStyle.join(", ");
+      if (Array.isArray(obj.royalType)) obj.royalType = obj.royalType.join(", ");
+      if (Array.isArray(obj.winterType)) obj.winterType = obj.winterType.join(", ");
+      if (Array.isArray(obj.winterStyle)) obj.winterStyle = obj.winterStyle.join(", ");
       return obj;
     });
-
     res.json(products);
   } catch (err) {
-    console.error("❌ getProducts error:", err);
     res.status(500).json({ error: "Failed to fetch products" });
   }
 };
