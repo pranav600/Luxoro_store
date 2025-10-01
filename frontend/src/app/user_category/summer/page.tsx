@@ -23,8 +23,12 @@ export default function SummerPage() {
   const genderOptions = ["male", "female"];
 
   // States
-  const [selectedSummerType, setSelectedSummerType] = useState<string | null>(null);
-  const [selectedSummerStyle, setSelectedSummerStyle] = useState<string | null>(null);
+  const [selectedSummerType, setSelectedSummerType] = useState<string | null>(
+    null
+  );
+  const [selectedSummerStyle, setSelectedSummerStyle] = useState<string | null>(
+    null
+  );
   const [selectedGender, setSelectedGender] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<string>("");
 

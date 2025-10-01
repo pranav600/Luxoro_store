@@ -29,7 +29,7 @@ const LXLoader: React.FC<{ size?: number }>
             letterSpacing: "0.02em",
           }}
         >
-          <span className="bg-clip-text text-transparent bg-gradient-to-br from-gray-700 via-black to-gray-700 [text-shadow:0_1px_0_rgba(0,0,0,0.05)]">
+          <span className="bg-clip-text text-transparent font-mono bg-gradient-to-br from-gray-700 via-black to-gray-700 [text-shadow:0_1px_0_rgba(0,0,0,0.05)]">
             LX
           </span>
         </div>
