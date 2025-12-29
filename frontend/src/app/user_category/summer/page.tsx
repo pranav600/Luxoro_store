@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import ProductCard from "@/components/ProductCard";
-import LXLoader from "@/components/LXLoader";
+import ProductCard from "@/components/product/ProductCard";
+import LXLoader from "@/components/ui/Loader";
 
 interface Product {
   _id: string;
@@ -175,8 +175,7 @@ export default function SummerPage() {
               <button
                 className="mt-2 text-xs text-gray-500 underline font-mono"
                 onClick={() => setSelectedSummerType(null)}
-                disabled={!selectedSummerType}
-              >
+                disabled={!selectedSummerType}>
                 Clear Type
               </button>
             </li>
@@ -205,8 +204,7 @@ export default function SummerPage() {
               <button
                 className="mt-2 text-xs text-gray-500 underline font-mono"
                 onClick={() => setSelectedSummerStyle(null)}
-                disabled={!selectedSummerStyle}
-              >
+                disabled={!selectedSummerStyle}>
                 Clear Style
               </button>
             </li>
@@ -235,8 +233,7 @@ export default function SummerPage() {
               <button
                 className="mt-2 text-xs text-gray-500 underline font-mono"
                 onClick={() => setSelectedGender(null)}
-                disabled={!selectedGender}
-              >
+                disabled={!selectedGender}>
                 Clear Gender
               </button>
             </li>
@@ -250,8 +247,7 @@ export default function SummerPage() {
             <select
               className="border rounded px-2 py-1 text-sm font-mono text-gray-700 cursor-pointer"
               value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-            >
+              onChange={(e) => setSortBy(e.target.value)}>
               <option value="">Sort By</option>
               <option value="priceLowHigh">Price: Low to High</option>
               <option value="priceHighLow">Price: High to Low</option>

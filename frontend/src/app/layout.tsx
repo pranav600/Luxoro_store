@@ -39,8 +39,8 @@
 
 "use client";
 import "./globals.css";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
+import Navbar from "../components/layout/Navbar";
+import Footer from "../components/layout/Footer";
 import { AuthProvider } from "../context/auth-context";
 import { CartProvider } from "../context/cart-context";
 import { Geist, Geist_Mono } from "next/font/google";
@@ -69,8 +69,7 @@ export default function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white text-black min-h-screen`}
-      >
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white text-black min-h-screen`}>
         <AuthProvider>
           <CartProvider>
             {!isAdmin && <Navbar />}

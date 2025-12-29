@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import ProductCard from "@/components/ProductCard";
-import LXLoader from "@/components/LXLoader";
+import ProductCard from "@/components/product/ProductCard";
+import LXLoader from "@/components/ui/Loader";
 
 interface Product {
   _id: string;
@@ -153,8 +153,7 @@ export default function RoyalPage() {
                     : "text-gray-400 cursor-not-allowed"
                 }`}
                 onClick={() => setSelectedRoyalType(null)}
-                disabled={!selectedRoyalType}
-              >
+                disabled={!selectedRoyalType}>
                 Clear Category
               </button>
             </li>
@@ -188,8 +187,7 @@ export default function RoyalPage() {
                     : "text-gray-400 cursor-not-allowed"
                 }`}
                 onClick={() => setSelectedGender(null)}
-                disabled={!selectedGender}
-              >
+                disabled={!selectedGender}>
                 Clear Gender
               </button>
             </li>
@@ -203,8 +201,7 @@ export default function RoyalPage() {
             <select
               className="border rounded px-2 py-1 text-sm font-mono text-gray-700 cursor-pointer"
               value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-            >
+              onChange={(e) => setSortBy(e.target.value)}>
               <option value="">Sort By</option>
               <option value="priceLowHigh">Price: Low to High</option>
               <option value="priceHighLow">Price: High to Low</option>
@@ -240,5 +237,3 @@ export default function RoyalPage() {
     </main>
   );
 }
-
-

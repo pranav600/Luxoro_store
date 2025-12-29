@@ -2,11 +2,9 @@
 
 import React, { useRef, useState, useEffect, useLayoutEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useAuth } from "../context/auth-context";
+import { useAuth } from "../../context/auth-context";
 import { useRouter } from "next/navigation";
 import { FiUser, FiLogOut, FiUpload } from "react-icons/fi";
-
-
 
 interface ProfileCardProps {
   open: boolean;
@@ -62,28 +60,27 @@ export default function ProfileCard({ open, onClose }: ProfileCardProps) {
           exit={{ opacity: 0, y: -12 }}
           transition={{ duration: 0.25 }}
           className="fixed right-4 z-[100]"
-          style={{ top: topOffset }}
-        >
+          style={{ top: topOffset }}>
           {/* Arrow */}
           {/* <div className="absolute -top-1.5 right-6 w-4 h-4 py-2 rotate-45 bg-white/30 backdrop-blur-xl border border-white/40 shadow-md z-[-1]" /> */}
 
           {/* Main Card */}
           <div
             ref={cardRef}
-            className="rounded-3xl p-10 w-80 max-w-[90vw] border border-white/40 bg-white/30 backdrop-blur-xl shadow-2xl ring-1 ring-white/10"
-          >
+            className="rounded-3xl p-10 w-80 max-w-[90vw] border border-white/40 bg-white/30 backdrop-blur-xl shadow-2xl ring-1 ring-white/10">
             {!user ? (
               <div className="flex flex-col items-center">
                 <FiUser className="text-5xl text-black mb-2" />
-                <div className="font-bold text-lg text-black mb-2">Welcome!</div>
+                <div className="font-bold text-lg text-black mb-2">
+                  Welcome!
+                </div>
                 <div className="flex gap-3 mt-2">
                   <button
                     className="bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-900 transition-colors cursor-pointer"
                     onClick={() => {
                       onClose();
                       router.push("/login");
-                    }}
-                  >
+                    }}>
                     Login
                   </button>
                   <button
@@ -91,8 +88,7 @@ export default function ProfileCard({ open, onClose }: ProfileCardProps) {
                     onClick={() => {
                       onClose();
                       router.push("/signup");
-                    }}
-                  >
+                    }}>
                     Sign Up
                   </button>
                 </div>
@@ -117,8 +113,7 @@ export default function ProfileCard({ open, onClose }: ProfileCardProps) {
                 <a
                   href="/profile"
                   className="block w-full bg-black text-white text-center px-4 py-2 rounded-lg mt-2"
-                  onClick={onClose}
-                >
+                  onClick={onClose}>
                   View Profile
                 </a>
               </div>

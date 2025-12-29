@@ -1,12 +1,11 @@
 "use client";
 import React, { useState } from "react";
 import { FiShoppingCart, FiMenu, FiX } from "react-icons/fi";
-import { useCart } from "../context/cart-context";
+import { useCart } from "../../context/cart-context";
 import { useRouter } from "next/navigation";
-import { useAuth } from "../context/auth-context";
-import ProfileCard from "./ProfileCard";
+import { useAuth } from "../../context/auth-context";
+import ProfileCard from "../profile/ProfileCard";
 import Link from "next/link";
-
 
 const navLinks = [
   { name: "Home", href: "/" },
@@ -38,16 +37,16 @@ export default function Navbar() {
   React.useEffect(() => {
     const handleClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
-      if (!target.closest('.categories-dropdown')) {
+      if (!target.closest(".categories-dropdown")) {
         setCategoriesOpen(false);
       }
     };
     if (categoriesOpen) {
-      document.addEventListener('mousedown', handleClick);
+      document.addEventListener("mousedown", handleClick);
     } else {
-      document.removeEventListener('mousedown', handleClick);
+      document.removeEventListener("mousedown", handleClick);
     }
-    return () => document.removeEventListener('mousedown', handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
   }, [categoriesOpen]);
 
   return (
@@ -65,8 +64,7 @@ export default function Navbar() {
       <button
         className="sm:hidden text-2xl text-black ml-auto mr-2 focus:outline-none"
         onClick={() => setMenuOpen((v) => !v)}
-        aria-label={menuOpen ? "Close menu" : "Open menu"}
-      >
+        aria-label={menuOpen ? "Close menu" : "Open menu"}>
         {menuOpen ? <FiX /> : <FiMenu />}
       </button>
 
@@ -77,8 +75,7 @@ export default function Navbar() {
             key={link.name}
             href={link.href}
             className="text-base md:text-lg font-mono tracking-wide transition-colors text-black hover:text-gray-600"
-            onClick={() => setCategoriesOpen(false)}
-          >
+            onClick={() => setCategoriesOpen(false)}>
             {link.name}
           </a>
         ))}
@@ -89,16 +86,14 @@ export default function Navbar() {
             tabIndex={0}
             aria-haspopup="true"
             aria-expanded={categoriesOpen}
-            onClick={() => setCategoriesOpen((open) => !open)}
-          >
+            onClick={() => setCategoriesOpen((open) => !open)}>
             Categories
             <svg
               className="w-4 h-4 ml-1"
               fill="none"
               stroke="currentColor"
               strokeWidth="2"
-              viewBox="0 0 24 24"
-            >
+              viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -114,8 +109,7 @@ export default function Navbar() {
                   href={cat.href}
                   className="block px-4 py-2 text-black font-mono hover:bg-gray-100 rounded-lg"
                   tabIndex={0}
-                  onClick={() => setCategoriesOpen(false)}
-                >
+                  onClick={() => setCategoriesOpen(false)}>
                   {cat.name}
                 </a>
               ))}
@@ -127,7 +121,7 @@ export default function Navbar() {
         <div className="relative inline-block">
           <FiShoppingCart
             className="text-2xl mx-2 text-black hover:text-gray-600 transition-colors cursor-pointer"
-            onClick={() => router.push('/cart')}
+            onClick={() => router.push("/cart")}
           />
           {isHydrated && totalItems > 0 && (
             <span className="absolute -top-2 -right-2 bg-black text-white text-xs rounded-full px-1.5 py-0.5 min-w-[20px] text-center">
@@ -141,8 +135,7 @@ export default function Navbar() {
           <button
             className="focus:outline-none cursor-pointer"
             onClick={() => setProfileOpen((v) => !v)}
-            aria-label="Open profile menu"
-          >
+            aria-label="Open profile menu">
             {user && user.image ? (
               <img
                 src={user.image}
@@ -157,8 +150,7 @@ export default function Navbar() {
                   viewBox="0 0 24 24"
                   strokeWidth={1.5}
                   stroke="currentColor"
-                  className="w-6 h-6"
-                >
+                  className="w-6 h-6">
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -173,7 +165,7 @@ export default function Navbar() {
             onClose={() => setProfileOpen(false)}
           />
         </div>
-              </div>
+      </div>
 
       {/* Mobile menu */}
       {menuOpen && (
@@ -183,8 +175,7 @@ export default function Navbar() {
               key={link.name}
               href={link.href}
               className="block w-full text-center py-2 text-base font-mono text-black hover:bg-gray-100"
-              onClick={() => setMenuOpen(false)}
-            >
+              onClick={() => setMenuOpen(false)}>
               {link.name}
             </a>
           ))}
@@ -199,8 +190,7 @@ export default function Navbar() {
                   key={cat.name}
                   href={cat.href}
                   className="block w-full text-center py-2 text-black font-mono hover:bg-gray-100"
-                  onClick={() => setMenuOpen(false)}
-                >
+                  onClick={() => setMenuOpen(false)}>
                   {cat.name}
                 </a>
               ))}
@@ -208,24 +198,23 @@ export default function Navbar() {
           </details>
 
           <div className="relative inline-block">
-  <FiShoppingCart
-    className="text-2xl my-2 text-black hover:text-gray-600 transition-colors cursor-pointer"
-    onClick={() => router.push('/cart')}
-  />
-  {isHydrated && totalItems > 0 && (
-    <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full px-1.5 py-0.5 min-w-[20px] text-center">
-      {totalItems}
-    </span>
-  )}
-</div>
+            <FiShoppingCart
+              className="text-2xl my-2 text-black hover:text-gray-600 transition-colors cursor-pointer"
+              onClick={() => router.push("/cart")}
+            />
+            {isHydrated && totalItems > 0 && (
+              <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full px-1.5 py-0.5 min-w-[20px] text-center">
+                {totalItems}
+              </span>
+            )}
+          </div>
 
           {user ? (
             <>
               <a
                 href="/profile"
                 className="block w-full text-center py-2 text-black font-mono hover:bg-gray-100"
-                onClick={() => setMenuOpen(false)}
-              >
+                onClick={() => setMenuOpen(false)}>
                 View Profile
               </a>
             </>
@@ -234,15 +223,13 @@ export default function Navbar() {
               <a
                 href="/login"
                 className="block w-full text-center py-2 text-black font-mono underline hover:bg-gray-100"
-                onClick={() => setMenuOpen(false)}
-              >
+                onClick={() => setMenuOpen(false)}>
                 Login
               </a>
               <a
                 href="/signup"
                 className="block w-full text-center py-2 text-black font-mono underline hover:bg-gray-100"
-                onClick={() => setMenuOpen(false)}
-              >
+                onClick={() => setMenuOpen(false)}>
                 Signup
               </a>
             </>
@@ -252,4 +239,3 @@ export default function Navbar() {
     </nav>
   );
 }
-

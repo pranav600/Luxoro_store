@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useAuth } from "../context/auth-context";
+import { useAuth } from "../../context/auth-context";
 
 interface LoginFormProps {
   isAdmin?: boolean;
@@ -10,7 +10,7 @@ interface LoginFormProps {
 // Wrapper component to handle Suspense for useSearchParams
 function LoginFormContent({ isAdmin }: LoginFormProps) {
   const searchParams = useSearchParams();
-  const redirectTo = searchParams.get('redirect') || '/';
+  const redirectTo = searchParams.get("redirect") || "/";
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -23,7 +23,9 @@ function LoginFormContent({ isAdmin }: LoginFormProps) {
     setLoading(true);
     setError("");
     try {
-      const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://luxoro-store-backend.onrender.com';
+      const baseURL =
+        process.env.NEXT_PUBLIC_API_BASE_URL ||
+        "https://luxoro-store-backend.onrender.com";
       const apiUrl = isAdmin
         ? `${baseURL}/api/admin/auth/login`
         : `${baseURL}/api/auth/login`;
@@ -96,8 +98,7 @@ function LoginFormContent({ isAdmin }: LoginFormProps) {
     <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-gray-50 to-gray-200">
       <form
         onSubmit={handleLogin}
-        className="bg-white p-10 rounded-xl shadow-lg w-full max-w-md mt-24"
-      >
+        className="bg-white p-10 rounded-xl shadow-lg w-full max-w-md mt-24">
         <h2 className="text-3xl font-bold mb-6 text-center text-black font-mono tracking-tight">
           {isAdmin ? "Admin Login" : "Login to Luxoro"}
         </h2>
@@ -130,8 +131,7 @@ function LoginFormContent({ isAdmin }: LoginFormProps) {
         <button
           type="submit"
           className="w-full bg-black text-white py-2 rounded-lg font-semibold hover:bg-gray-900 transition-colors cursor-pointer"
-          disabled={loading}
-        >
+          disabled={loading}>
           {loading ? "Logging in..." : "Login"}
         </button>
         <div className="mt-4 text-center text-gray-600">
@@ -140,8 +140,7 @@ function LoginFormContent({ isAdmin }: LoginFormProps) {
               Don't have an admin account?{" "}
               <a
                 href="/admin/signup"
-                className="text-black underline hover:text-gray-800 cursor-pointer"
-              >
+                className="text-black underline hover:text-gray-800 cursor-pointer">
                 Sign up
               </a>
             </>
@@ -150,8 +149,7 @@ function LoginFormContent({ isAdmin }: LoginFormProps) {
               Don't have an account?{" "}
               <a
                 href="/signup"
-                className="text-black underline hover:text-gray-800 cursor-pointer"
-              >
+                className="text-black underline hover:text-gray-800 cursor-pointer">
                 Sign up
               </a>
             </>
