@@ -29,19 +29,6 @@ export const verifyToken = async (req, res, next) => {
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    // ✅ VIRTUAL ADMIN CHECK: Trust the token if it claims to be an admin (Shared Secret Architecture)
-    // This allows the Admin Backend to authenticate against the Store Backend without syncing databases.
-    if (decoded.role === "admin" || decoded.isAdmin === true) {
-      req.user = {
-        _id: decoded.userId || decoded.id,
-        name: decoded.name || "Admin",
-        email: decoded.email,
-        role: "admin",
-        isAdmin: true,
-      };
-      return next();
-    }
-
     // accept either decoded.userId or decoded.id
     const userId = decoded.userId || decoded.id;
     if (!userId) {

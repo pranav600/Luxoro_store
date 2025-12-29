@@ -28,6 +28,16 @@ const userSchema = new mongoose.Schema(
       type: String, // This will store the base64 string or an image URL
       default: "", // Optional default value
     },
+    otp: {
+      type: String,
+    },
+    otpExpires: {
+      type: Date,
+    },
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );
