@@ -1,3 +1,7 @@
+/**
+ * Luxoro Store Home Page
+ * Main landing page for the e-commerce store
+ */
 "use client";
 import HomePage from "../components/home/HomePage";
 
