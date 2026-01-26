@@ -1,4 +1,7 @@
-
+/**
+ * Footer Component
+ * Displays site-wide footer with links, social media icons, and contact information
+ */
 import React from "react";
 import { FaFacebookF, FaGithub, FaInstagram } from "react-icons/fa";
 
@@ -40,8 +43,8 @@ export default function Footer() {
       </div>
       {/* Basic Info */}
       <div className="max-w-7xl mx-auto mt-6 text-center text-xs sm:text-sm text-gray-500 font-mono px-2">
-        Gondal road, India, GJ 360004 &nbsp;|&nbsp; Email:
-        support@luxoro.in &nbsp;|&nbsp; Phone: (91) 6351949342
+        Gondal road, India, GJ 360004 &nbsp;|&nbsp; Email: support@luxoro.in
+        &nbsp;|&nbsp; Phone: (91) 6351949342
       </div>
     </footer>
   );
