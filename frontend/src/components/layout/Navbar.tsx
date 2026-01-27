@@ -1,3 +1,8 @@
+/**
+ * Navbar Component
+ * Main navigation bar with logo, menu links, categories dropdown, cart icon, and user profile
+ * Includes responsive mobile menu with hamburger toggle
+ */
 "use client";
 import React, { useState } from "react";
 import { FiShoppingCart, FiMenu, FiX } from "react-icons/fi";
