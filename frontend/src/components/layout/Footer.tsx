@@ -6,6 +6,7 @@ import React from "react";
 import { FaFacebookF, FaGithub, FaInstagram } from "react-icons/fa";
 
 export default function Footer() {
+  // Main footer component
   return (
     <footer className="w-full bg-white border-t border-gray-200 pt-8 pb-4 px-2 sm:px-4 mt-12">
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 md:gap-8">
