@@ -11,11 +11,9 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "../../context/auth-context";
 import ProfileCard from "../profile/ProfileCard";
 import Link from "next/link";
+import SearchBar from "../ui/SearchBar";
 
-const navLinks = [
-  { name: "Home", href: "/" },
-  { name: "Contact", href: "#" },
-];
+const navLinks = [{ name: "Home", href: "/" }];
 
 const categoryLinks = [
   { name: "Royal", href: "/user_category/royal" },
@@ -72,9 +70,12 @@ export default function Navbar() {
         aria-label={menuOpen ? "Close menu" : "Open menu"}>
         {menuOpen ? <FiX /> : <FiMenu />}
       </button>
-
       {/* Links for desktop */}
       <div className="hidden sm:flex items-center space-x-4 md:space-x-8">
+        {/* Search Bar */}
+        <div className="hidden md:block max-w-md mx-5 font-mono text-black">
+          <SearchBar />
+        </div>
         {navLinks.map((link) => (
           <a
             key={link.name}

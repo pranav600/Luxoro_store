@@ -517,7 +517,7 @@ export default function AddressesSection() {
 
       {/* Header */}
       <div className="flex justify-between items-center">
-        <h2 className="text-xl text-gray-700 font-semibold">My Addresses</h2>
+        <h2 className="text-xl text-gray-700 font-semibold font-mono">My Addresses</h2>
         <button
           onClick={() => {
             resetForm();
