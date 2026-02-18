@@ -127,68 +127,14 @@ export const searchProducts = async (req, res) => {
       return res.status(400).json({ error: "Query parameter 'q' is required" });
     }
 
-    // Split query into terms
-    const terms = q.trim().split(/\s+/);
-
-    // Identify gender terms
-    let genderFilter = null;
-    const genderKeywords = {
-      men: ["Men", "Male", "Man"],
-      man: ["Men", "Male", "Man"],
-      male: ["Men", "Male", "Man"],
-      women: ["Women", "Female", "Woman"],
-      woman: ["Women", "Female", "Woman"],
-      female: ["Women", "Female", "Woman"],
-      ladies: ["Women", "Female", "Woman"],
-    };
-
-    const searchTerms = terms.filter((term) => {
-      const lowerTerm = term.toLowerCase();
-      if (genderKeywords[lowerTerm]) {
-        genderFilter = genderKeywords[lowerTerm]; // This is now an array
-        return false; // Remove gender keyword from search terms
-      }
-      return true;
-    });
-
-    // Construct query object
-    const queryObj = {};
-
-    // Match ANY of the mapped gender values
-    if (genderFilter) {
-      // Create regex to match any of the values in the array (e.g., /Men|Male|Man/i)
-      const genderRegex = new RegExp(genderFilter.join("|"), "i");
-      queryObj.gender = { $regex: genderRegex };
-    }
-
-    const models = [
-      { Model: Summer, fields: ["title", "summerType", "summerStyle"] },
-      { Model: Royal, fields: ["title", "royalType"] },
-      { Model: Winter, fields: ["title", "winterType", "winterStyle"] },
-      { Model: Accessories, fields: ["title", "accessoriesType"] },
-    ];
+    const regex = new RegExp(q, "i"); // Case-insensitive regex
+    const models = [Summer, Royal, Winter, Accessories];
+    let results = [];
 
     // Search in all collections in parallel
-    const promises = models.map(({ Model, fields }) => {
-      // Create a specific query for this model
-      const modelQuery = { ...queryObj };
-
-      if (searchTerms.length > 0) {
-        const termConditions = searchTerms.map((term) => {
-          const regex = new RegExp(term, "i");
-          // For each term, it must match AT LEAST ONE of the specified fields for this model
-          return {
-            $or: fields.map((field) => ({ [field]: { $regex: regex } })),
-          };
-        });
-
-        // Combine all term conditions with AND
-        modelQuery.$and = termConditions;
-      }
-
-      return Model.find(modelQuery);
-    });
-
+    const promises = models.map((Model) =>
+      Model.find({ title: { $regex: regex } }),
+    );
     const responses = await Promise.all(promises);
 
     // Combine results
@@ -198,7 +144,6 @@ export const searchProducts = async (req, res) => {
 
     res.json(results);
   } catch (err) {
-    console.error("Search error:", err);
     res.status(500).json({ error: "Search failed" });
   }
 };
