@@ -133,43 +133,62 @@ export const searchProducts = async (req, res) => {
     // Identify gender terms
     let genderFilter = null;
     const genderKeywords = {
-      men: "Men",
-      man: "Men",
-      male: "Men",
-      women: "Women",
-      woman: "Women",
-      female: "Women",
-      ladies: "Women",
+      men: ["Men", "Male", "Man"],
+      man: ["Men", "Male", "Man"],
+      male: ["Men", "Male", "Man"],
+      women: ["Women", "Female", "Woman"],
+      woman: ["Women", "Female", "Woman"],
+      female: ["Women", "Female", "Woman"],
+      ladies: ["Women", "Female", "Woman"],
     };
 
     const searchTerms = terms.filter((term) => {
       const lowerTerm = term.toLowerCase();
       if (genderKeywords[lowerTerm]) {
-        genderFilter = genderKeywords[lowerTerm];
+        genderFilter = genderKeywords[lowerTerm]; // This is now an array
         return false; // Remove gender keyword from search terms
       }
       return true;
     });
 
-    const models = [Summer, Royal, Winter, Accessories];
-    let results = [];
-
     // Construct query object
     const queryObj = {};
 
-    // exact match for gender if found
+    // Match ANY of the mapped gender values
     if (genderFilter) {
-      queryObj.gender = { $regex: new RegExp(`^${genderFilter}$`, "i") };
+      // Create regex to match any of the values in the array (e.g., /Men|Male|Man/i)
+      const genderRegex = new RegExp(genderFilter.join("|"), "i");
+      queryObj.gender = { $regex: genderRegex };
     }
 
-    // specific regex for remaining terms in title (AND logic)
-    if (searchTerms.length > 0) {
-      const regexPatterns = searchTerms.map((term) => new RegExp(term, "i"));
-      queryObj.title = { $all: regexPatterns };
-    }
+    const models = [
+      { Model: Summer, fields: ["title", "summerType", "summerStyle"] },
+      { Model: Royal, fields: ["title", "royalType"] },
+      { Model: Winter, fields: ["title", "winterType", "winterStyle"] },
+      { Model: Accessories, fields: ["title", "accessoriesType"] },
+    ];
 
     // Search in all collections in parallel
-    const promises = models.map((Model) => Model.find(queryObj));
+    const promises = models.map(({ Model, fields }) => {
+      // Create a specific query for this model
+      const modelQuery = { ...queryObj };
+
+      if (searchTerms.length > 0) {
+        const termConditions = searchTerms.map((term) => {
+          const regex = new RegExp(term, "i");
+          // For each term, it must match AT LEAST ONE of the specified fields for this model
+          return {
+            $or: fields.map((field) => ({ [field]: { $regex: regex } })),
+          };
+        });
+
+        // Combine all term conditions with AND
+        modelQuery.$and = termConditions;
+      }
+
+      return Model.find(modelQuery);
+    });
+
     const responses = await Promise.all(promises);
 
     // Combine results
