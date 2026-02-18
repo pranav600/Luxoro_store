@@ -37,6 +37,7 @@ import {
   createProduct,
   updateProduct,
   deleteProduct,
+  searchProducts,
 } from "../controllers/productController.js";
 
 const router = express.Router();
@@ -45,6 +46,7 @@ const router = express.Router();
 const upload = multer({ storage });
 
 // Routes
+router.get("/search", searchProducts); // /api/products/search
 router.get("/", getProducts); // /api/products
 router.get("/category/:category", getProducts); // optional if needed
 router.get("/:id", getProductById); // /api/products/:id

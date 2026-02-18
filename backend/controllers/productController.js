@@ -2,7 +2,6 @@
 // import Bottoms from "../models/bottoms.js";
 // import Accessories from "../models/accessories.js";
 
-
 // // Helper to select model by category
 // function getModelByCategory(category){
 //   switch ((category || '').toLowerCase()) {
@@ -46,7 +45,6 @@
 //     const Model = getModelByCategory(category);
 //     const product = new Model({ title, price, oldPrice, category, subCategory, image, gender });
 //     await product.save();
-
 
 //     res.status(201).json({ message: "Product added!", product });
 //   } catch (err) {
@@ -92,7 +90,8 @@ export const getProducts = async (req, res) => {
     if (req.query.gender) filter.gender = req.query.gender;
     if (req.query.summerType) filter.summerType = req.query.summerType;
     if (req.query.summerStyle) filter.summerStyle = req.query.summerStyle;
-    if (req.query.accessoriesType) filter.accessoriesType = req.query.accessoriesType;
+    if (req.query.accessoriesType)
+      filter.accessoriesType = req.query.accessoriesType;
     if (req.query.royalType) filter.royalType = req.query.royalType;
     if (req.query.winterType) filter.winterType = req.query.winterType;
     if (req.query.winterStyle) filter.winterStyle = req.query.winterStyle;
@@ -100,12 +99,18 @@ export const getProducts = async (req, res) => {
     // Join arrays for easier frontend handling
     products = products.map((p) => {
       const obj = p.toObject();
-      if (Array.isArray(obj.accessoriesType)) obj.accessoriesType = obj.accessoriesType.join(", ");
-      if (Array.isArray(obj.summerType)) obj.summerType = obj.summerType.join(", ");
-      if (Array.isArray(obj.summerStyle)) obj.summerStyle = obj.summerStyle.join(", ");
-      if (Array.isArray(obj.royalType)) obj.royalType = obj.royalType.join(", ");
-      if (Array.isArray(obj.winterType)) obj.winterType = obj.winterType.join(", ");
-      if (Array.isArray(obj.winterStyle)) obj.winterStyle = obj.winterStyle.join(", ");
+      if (Array.isArray(obj.accessoriesType))
+        obj.accessoriesType = obj.accessoriesType.join(", ");
+      if (Array.isArray(obj.summerType))
+        obj.summerType = obj.summerType.join(", ");
+      if (Array.isArray(obj.summerStyle))
+        obj.summerStyle = obj.summerStyle.join(", ");
+      if (Array.isArray(obj.royalType))
+        obj.royalType = obj.royalType.join(", ");
+      if (Array.isArray(obj.winterType))
+        obj.winterType = obj.winterType.join(", ");
+      if (Array.isArray(obj.winterStyle))
+        obj.winterStyle = obj.winterStyle.join(", ");
       return obj;
     });
     res.json(products);
@@ -114,32 +119,91 @@ export const getProducts = async (req, res) => {
   }
 };
 
+// 🔍 SEARCH products
+export const searchProducts = async (req, res) => {
+  try {
+    const { q } = req.query;
+    if (!q) {
+      return res.status(400).json({ error: "Query parameter 'q' is required" });
+    }
+
+    const regex = new RegExp(q, "i"); // Case-insensitive regex
+    const models = [Summer, Royal, Winter, Accessories];
+    let results = [];
+
+    // Search in all collections in parallel
+    const promises = models.map((Model) =>
+      Model.find({ title: { $regex: regex } }),
+    );
+    const responses = await Promise.all(promises);
+
+    // Combine results
+    responses.forEach((chunk) => {
+      results.push(...chunk);
+    });
+
+    res.json(results);
+  } catch (err) {
+    res.status(500).json({ error: "Search failed" });
+  }
+};
+
 // ➕ CREATE product
 export const createProduct = async (req, res) => {
   try {
-    let { title, price, oldPrice, category, accessoriesType, gender, summerType, summerStyle, royalType, winterType, winterStyle } = req.body;
+    let {
+      title,
+      price,
+      oldPrice,
+      category,
+      accessoriesType,
+      gender,
+      summerType,
+      summerStyle,
+      royalType,
+      winterType,
+      winterStyle,
+    } = req.body;
     if (!title || !price || !category || !req.file) {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
     // Convert comma-separated string to array for accessoriesType if needed
     if (category === "accessories" && typeof accessoriesType === "string") {
-      accessoriesType = accessoriesType.split(",").map((s) => s.trim()).filter(Boolean);
+      accessoriesType = accessoriesType
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
     }
     if (category === "summer" && typeof summerType === "string") {
-      summerType = summerType.split(",").map((s) => s.trim()).filter(Boolean);
+      summerType = summerType
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
     }
     if (category === "summer" && typeof summerStyle === "string") {
-      summerStyle = summerStyle.split(",").map((s) => s.trim()).filter(Boolean);
+      summerStyle = summerStyle
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
     }
     if (category === "winter" && typeof winterType === "string") {
-      winterType = winterType.split(",").map((s) => s.trim()).filter(Boolean);
+      winterType = winterType
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
     }
     if (category === "winter" && typeof winterStyle === "string") {
-      winterStyle = winterStyle.split(",").map((s) => s.trim()).filter(Boolean);
+      winterStyle = winterStyle
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
     }
     if (category === "royal" && typeof royalType === "string") {
-      royalType = royalType.split(",").map((s) => s.trim()).filter(Boolean);
+      royalType = royalType
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
     }
 
     const image = req.file.path; // Cloudinary URL
@@ -177,12 +241,18 @@ export const getProductById = async (req, res) => {
       const product = await Model.findById(id);
       if (product) {
         const obj = product.toObject();
-        if (Array.isArray(obj.accessoriesType)) obj.accessoriesType = obj.accessoriesType.join(", ");
-        if (Array.isArray(obj.summerType)) obj.summerType = obj.summerType.join(", ");
-        if (Array.isArray(obj.summerStyle)) obj.summerStyle = obj.summerStyle.join(", ");
-        if (Array.isArray(obj.winterType)) obj.winterType = obj.winterType.join(", ");
-        if (Array.isArray(obj.winterStyle)) obj.winterStyle = obj.winterStyle.join(", ");
-        if (Array.isArray(obj.royalType)) obj.royalType = obj.royalType.join(", ");
+        if (Array.isArray(obj.accessoriesType))
+          obj.accessoriesType = obj.accessoriesType.join(", ");
+        if (Array.isArray(obj.summerType))
+          obj.summerType = obj.summerType.join(", ");
+        if (Array.isArray(obj.summerStyle))
+          obj.summerStyle = obj.summerStyle.join(", ");
+        if (Array.isArray(obj.winterType))
+          obj.winterType = obj.winterType.join(", ");
+        if (Array.isArray(obj.winterStyle))
+          obj.winterStyle = obj.winterStyle.join(", ");
+        if (Array.isArray(obj.royalType))
+          obj.royalType = obj.royalType.join(", ");
         return res.json(obj);
       }
     }
@@ -202,23 +272,44 @@ export const updateProduct = async (req, res) => {
     let { royalType } = req.body;
     let { winterType, winterStyle } = req.body;
     // Convert comma-separated string to array for accessoriesType if needed
-    if ((category === "accessories" || category === "summer") && typeof accessoriesType === "string") {
-      accessoriesType = accessoriesType.split(",").map((s) => s.trim()).filter(Boolean);
+    if (
+      (category === "accessories" || category === "summer") &&
+      typeof accessoriesType === "string"
+    ) {
+      accessoriesType = accessoriesType
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
     }
     if (category === "summer" && typeof summerType === "string") {
-      summerType = summerType.split(",").map((s) => s.trim()).filter(Boolean);
+      summerType = summerType
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
     }
     if (category === "summer" && typeof summerStyle === "string") {
-      summerStyle = summerStyle.split(",").map((s) => s.trim()).filter(Boolean);
+      summerStyle = summerStyle
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
     }
     if (category === "winter" && typeof winterType === "string") {
-      winterType = winterType.split(",").map((s) => s.trim()).filter(Boolean);
+      winterType = winterType
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
     }
     if (category === "winter" && typeof winterStyle === "string") {
-      winterStyle = winterStyle.split(",").map((s) => s.trim()).filter(Boolean);
+      winterStyle = winterStyle
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
     }
     if (category === "royal" && typeof royalType === "string") {
-      royalType = royalType.split(",").map((s) => s.trim()).filter(Boolean);
+      royalType = royalType
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
     }
 
     const models = [Summer, Royal, Winter, Accessories];
