@@ -62,7 +62,15 @@ dotenv.config({ path: path.resolve(__dirname, ".env") });
 const app = express();
 
 // Middleware
-app.use(cors());
+const corsOptions = {
+  origin: [
+    "http://localhost:3000",
+    "https://luxoro-store-frontend.onrender.com",
+  ],
+  credentials: true,
+  optionSuccessStatus: 200,
+};
+app.use(cors(corsOptions));
 app.use(bodyParser.json({ limit: "10mb" }));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use("/assets", express.static(path.join(__dirname, "public/assets")));

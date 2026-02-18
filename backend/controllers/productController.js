@@ -127,14 +127,49 @@ export const searchProducts = async (req, res) => {
       return res.status(400).json({ error: "Query parameter 'q' is required" });
     }
 
-    const regex = new RegExp(q, "i"); // Case-insensitive regex
+    // Split query into terms
+    const terms = q.trim().split(/\s+/);
+
+    // Identify gender terms
+    let genderFilter = null;
+    const genderKeywords = {
+      men: "Men",
+      man: "Men",
+      male: "Men",
+      women: "Women",
+      woman: "Women",
+      female: "Women",
+      ladies: "Women",
+    };
+
+    const searchTerms = terms.filter((term) => {
+      const lowerTerm = term.toLowerCase();
+      if (genderKeywords[lowerTerm]) {
+        genderFilter = genderKeywords[lowerTerm];
+        return false; // Remove gender keyword from search terms
+      }
+      return true;
+    });
+
     const models = [Summer, Royal, Winter, Accessories];
     let results = [];
 
+    // Construct query object
+    const queryObj = {};
+
+    // exact match for gender if found
+    if (genderFilter) {
+      queryObj.gender = { $regex: new RegExp(`^${genderFilter}$`, "i") };
+    }
+
+    // specific regex for remaining terms in title (AND logic)
+    if (searchTerms.length > 0) {
+      const regexPatterns = searchTerms.map((term) => new RegExp(term, "i"));
+      queryObj.title = { $all: regexPatterns };
+    }
+
     // Search in all collections in parallel
-    const promises = models.map((Model) =>
-      Model.find({ title: { $regex: regex } }),
-    );
+    const promises = models.map((Model) => Model.find(queryObj));
     const responses = await Promise.all(promises);
 
     // Combine results
@@ -144,6 +179,7 @@ export const searchProducts = async (req, res) => {
 
     res.json(results);
   } catch (err) {
+    console.error("Search error:", err);
     res.status(500).json({ error: "Search failed" });
   }
 };
