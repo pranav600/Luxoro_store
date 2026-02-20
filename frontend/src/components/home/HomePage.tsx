@@ -1,5 +1,6 @@
 "use client";
 
+// Small comment for git commit
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -58,8 +59,7 @@ const BannerSection = ({
       ref={sectionRef}
       className={`w-full text-black font-mono flex flex-col md:flex-row overflow-hidden items-center ${
         reverse ? "md:flex-row-reverse" : ""
-      }`}
-    >
+      }`}>
       {/* Text */}
       <div className="flex-1 flex flex-col justify-center px-4 sm:px-8 md:px-10 py-8 md:py-0">
         <motion.h1
@@ -68,8 +68,7 @@ const BannerSection = ({
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
-          className="text-3xl sm:text-5xl md:text-7xl text-black font-mono leading-tight mb-4 sm:mb-6"
-        >
+          className="text-3xl sm:text-5xl md:text-7xl text-black font-mono leading-tight mb-4 sm:mb-6">
           {title}
         </motion.h1>
 
@@ -79,8 +78,7 @@ const BannerSection = ({
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
-          className="text-base sm:text-lg md:text-xl mb-6 sm:mb-10"
-        >
+          className="text-base sm:text-lg md:text-xl mb-6 sm:mb-10">
           {description}
         </motion.p>
         <Link href={buttonHref} passHref>
@@ -96,8 +94,7 @@ const BannerSection = ({
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true }}
-        className="flex-1 relative min-h-[220px] sm:min-h-[350px] md:min-h-[500px] overflow-hidden"
-      >
+        className="flex-1 relative min-h-[220px] sm:min-h-[350px] md:min-h-[500px] overflow-hidden">
         <Image
           src={image}
           alt="Banner Image"
@@ -120,16 +117,14 @@ export function AboutSection({ sectionRef }: AboutSectionProps) {
   return (
     <section
       ref={sectionRef}
-      className="w-full py-12 sm:py-30 px-4 sm:px-8 text-center bg-white"
-    >
+      className="w-full py-12 sm:py-30 px-4 sm:px-8 text-center bg-white">
       <motion.p
         custom={1}
         variants={aboutVariant}
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true }}
-        className="max-w-7xl mx-auto text-black text-base sm:text-lg md:text-xl font-mono leading-relaxed"
-      >
+        className="max-w-7xl mx-auto text-black text-base sm:text-lg md:text-xl font-mono leading-relaxed">
         We are a design-forward fashion brand committed to creating timeless
         collections that blend comfort, quality, and individuality. Our pieces
         are inspired by the rhythm of everyday life, aiming to empower modern
@@ -144,8 +139,7 @@ export function AboutSection({ sectionRef }: AboutSectionProps) {
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true }}
-        className="mt-6 space-y-2 text-gray-500 italic text-sm sm:text-base"
-      >
+        className="mt-6 space-y-2 text-gray-500 italic text-sm sm:text-base">
         <p>
           "Fashion is the armor to survive the reality of everyday life." — Bill
           Cunningham
@@ -179,8 +173,7 @@ export default function Banner() {
           src="/assets/homepage_img/advertisement.mp4"
           autoPlay
           muted
-          loop
-        >
+          loop>
           Sorry, your browser does not support embedded videos.
         </video>
 
@@ -188,15 +181,13 @@ export default function Banner() {
           className="absolute bottom-10 left-1/2 transform -translate-x-1/2 text-center"
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-        >
+          transition={{ duration: 0.8, ease: "easeOut" }}>
           <p className="text-xl sm:text-2xl md:text-4xl text-white font-mono mb-4 sm:mb-6">
             2025
           </p>
           <button
             className="bg-white text-black px-4 py-3 text-lg font-medium rounded-full hover:bg-neutral-200 transition duration-300 cursor-pointer"
-            onClick={handleSeeCollection}
-          >
+            onClick={handleSeeCollection}>
             See Collection
           </button>
         </motion.div>
