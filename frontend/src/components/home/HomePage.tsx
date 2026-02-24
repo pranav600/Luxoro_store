@@ -1,6 +1,6 @@
 "use client";
 
-// Small comment for git commit
+// Another small comment for git commit practice
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
